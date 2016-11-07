@@ -1,0 +1,27 @@
+{
+  "GermlineVarCall.known_indels_sites_VCFs": [
+  "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/b37_decoy_reference_files/1000G_phase1.indels.b37.vcf",
+  "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/b37_decoy_reference_files/Mills_and_1000G_gold_standard.indels.b37.vcf"    
+  ],
+  "GermlineVarCall.known_indels_sites_indices": [
+  "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/b37_decoy_reference_files/Mills_and_1000G_gold_standard.indels.b37.vcf.idx",
+  "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/b37_decoy_reference_files/1000G_phase1.indels.b37.vcf.idx"
+  ],
+  "GermlineVarCall.dbSNP_vcf": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/b37_decoy_reference_files/dbsnp.vcf",
+  "GermlineVarCall.dbSNP_vcf_index": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/b37_decoy_reference_files/dbsnp.vcf.idx",
+  "GermlineVarCall.ref_sa": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/b37_decoy_reference_files/human_g1k_v37_decoy.fasta.sa",
+  "GermlineVarCall.ref_bwt": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/b37_decoy_reference_files/human_g1k_v37_decoy.fasta.bwt",
+  "GermlineVarCall.ref_fasta_index": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/b37_decoy_reference_files/human_g1k_v37_decoy.fasta.fai",
+  "GermlineVarCall.ref_ann": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/b37_decoy_reference_files/human_g1k_v37_decoy.fasta.ann",
+  "GermlineVarCall.ref_amb": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/b37_decoy_reference_files/human_g1k_v37_decoy.fasta.amb",
+  "GermlineVarCall.ref_pac": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/b37_decoy_reference_files/human_g1k_v37_decoy.fasta.pac",
+  "GermlineVarCall.ref_fasta": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/b37_decoy_reference_files/human_g1k_v37_decoy.fasta",
+  "GermlineVarCall.fasta_bwt": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/b37_decoy_reference_files/human_g1k_v37_decoy.fasta.bwt",
+  "GermlineVarCall.ref_dict": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/b37_decoy_reference_files/human_g1k_v37_decoy.dict",
+  "GermlineVarCall.input_fastq2": "/home/oskar/01-workspace/01-data/test2.fastq",
+  "GermlineVarCall.input_fastq1": "/home/oskar/01-workspace/01-data/test.fastq",
+  "GermlineVarCall.gatk3": "/home/oskar/01-workspace/02-tools/GenomeAnalysisTK-3.6/GenomeAnalysisTK.jar",
+  "GermlineVarCall.gatk4": "/home/oskar/01-workspace/02-tools/GATK-4.jar",
+  "GermlineVarCall.picard": "/home/oskar/01-workspace/02-tools/picard.jar",
+  "GermlineVarCall.Base_Name": "sample_"
+}
