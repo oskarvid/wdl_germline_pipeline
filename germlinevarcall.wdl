@@ -200,7 +200,7 @@ task BwaMem {
   String Base_Name
   
     command {
-      bwa mem -t 2 -K 100000000 -M -v 3 ${Ref_Fasta} ${Input_Fastq1} ${Input_Fastq2} > ${Base_Name}.sam
+      /tools/scattergather-test/tools/bwa/bwa mem -t 18 -K 100000000 -M -v 3 ${Ref_Fasta} ${Input_Fastq1} ${Input_Fastq2} > ${Base_Name}.sam
     }
   output {
     File outputfile = "${Base_Name}.sam"
