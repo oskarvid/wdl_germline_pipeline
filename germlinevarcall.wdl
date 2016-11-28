@@ -1,5 +1,6 @@
 workflow GermlineVarCall {
 # Input files
+  Array[File] scattered_calling_intervals
   Array[File] known_indels_sites_indices
   Array[File] known_indels_sites_VCFs
   File dbSNP_vcf_index
@@ -17,6 +18,16 @@ workflow GermlineVarCall {
   File ref_bwt
   File ref_pac
   File ref_sa
+  File vrresource1
+  File vrresource2
+  File vrresource3
+  File vrresource4
+  File vrresource5
+  File vrresource1_index
+  File vrresource2_index
+  File vrresource3_index
+  File vrresource4_index
+  File vrresource5_index
 
 # Jar files  
   File picard
@@ -25,7 +36,8 @@ workflow GermlineVarCall {
 
 # String names  
   String Base_Name
-
+  String final_gvcf_name
+  String recalibrated_bam_basename = Base_Name + ".aligned.duplicates_marked.recalibrated"
 
 call CreateSequenceGroupingTSV {
   input:
@@ -46,15 +58,15 @@ call BwaMem {
     Input_Fastq1 = input_fastq1,
     Input_Fastq2 = input_fastq2,
     Base_Name = Base_Name
-  }
+}
 
 call SortSam {
   input:
     PICARD = picard,
-    Base_Name = Base_Name +".bwa",
+    Base_Name = Base_Name +".sortsam.bwa",
     Input_File = BwaMem.outputfile,
     Ref_Fasta = ref_fasta
-    }
+}
 
 call SetNm {
   input:
@@ -62,16 +74,16 @@ call SetNm {
     ref_fasta_index = ref_fasta_index,
     ref_dict = ref_dict,
     PICARD = picard,
-    Base_Name = Base_Name +".sortsam.bwa",
+    Base_Name = Base_Name +".setnm.sortsam.bwa",
     Input_Bam = SortSam.SamOutputBam,
 }
 
 call MarkDup {
   input:
     PICARD = picard,
-    Base_Name = Base_Name + ".bwa.sortsam",
+    Base_Name = Base_Name + ".markdup.setnm.sortsam.bwa",
     Input_File = SortSam.SamOutputBam
-    }
+}
     
   # Perform Base Quality Score Recalibration (BQSR) on the sorted BAM in parallel
   scatter (subgroup in CreateSequenceGroupingTSV.sequence_grouping) {
@@ -104,7 +116,7 @@ call MarkDup {
         ref_fasta = ref_fasta,
         ref_fasta_index = ref_fasta_index,
     }
-  }  
+  }
   
   # Merge the recalibration reports resulting from by-interval recalibration
   call GatherBqsrReports{
@@ -121,8 +133,8 @@ call MarkDup {
   call ApplyBQSR as ApplyBQSRToUnmappedReads {
     input:
       GATK4=gatk4,
-      Input_Bam = sortSamBam,
-      Input_Bam_Index = sortSamBamIndex,
+      Input_Bam = MarkDup.MarkDupOutputBam,
+      Input_Bam_Index = MarkDup.MarkDupOutputBai,
       Output_Bam_Basename = recalibrated_bam_basename,
       Recalibration_Report = GatherBqsrReports.output_bqsr_report,
       Sequence_Group_Interval = unmapped_group_interval,
@@ -136,12 +148,120 @@ call MarkDup {
   # as an input and add the output of the above task to the scattered printreads bams
   call GatherBamFiles {
     input:
-      GATK4=gatk4,
+      PICARD=picard,
       Input_Bams = ApplyBQSR.recalibrated_bam,
       Input_Unmapped_Reads_Bam = ApplyBQSRToUnmappedReads.recalibrated_bam,
-      Output_Bam_Basename = Base_Name,
+      Output_Bam_Basename = Base_Name + ".bqsr.baserecal.markdup.setnm.sortsam.bwa",
   }
 
+  # Call variants in parallel over WGS calling intervals
+  scatter (subInterval in scattered_calling_intervals) {
+  
+    # Generate GVCF by interval
+    call HaplotypeCaller {
+      input:
+        GATK3 = gatk3,
+        Input_Bam = GatherBamFiles.output_bam,
+        Input_Bam_Index = GatherBamFiles.output_bam_index,
+        Interval_List = subInterval,
+        Gvcf_Basename = Base_Name + ".haplotypecaller.bqsr.baserecal.markdup.setnm.sortsam.bwa",
+        ref_dict = ref_dict,
+        ref_fasta = ref_fasta,
+        ref_fasta_index = ref_fasta_index,
+    }
+  }
+  
+  # Combine by-interval GVCFs into a single sample GVCF file
+  call GatherVCFs {
+    input:
+      PICARD = picard,
+      Input_Vcfs = HaplotypeCaller.output_gvcf,
+      Input_Vcfs_Indexes = HaplotypeCaller.output_gvcf_index,
+      Output_Vcf_Name = final_gvcf_name,
+  }
+
+  call GenotypeGVCFs {
+    input:
+      GATK3 = gatk3,
+      ref_fasta = ref_fasta,
+      ref_fasta_index = ref_fasta_index,
+      ref_dict = ref_dict,
+      Input_Vcf = GatherVCFs.output_vcfs,
+      Input_Vcf_Index = GatherVCFs.output_vcfs_index,
+      Output_Name = final_gvcf_name + ".genotypegvcf.haplotypecaller.bqsr.baserecal.markdup.setnm.sortsam.bwa",
+  }
+
+  call VariantRecalibratorSNP {
+    input:
+      ref_fasta = ref_fasta,
+      ref_fasta_index = ref_fasta_index,
+      ref_dict = ref_dict,
+      Input_Vcf_Index = GenotypeGVCFs.output_vcf_index,
+      GATK3 = gatk3,
+      Input_Vcf = GenotypeGVCFs.output_vcf,
+      VrResource1 = vrresource1,
+      VrResource2 = vrresource2,
+      VrResource3 = vrresource3,
+      VrResource4 = vrresource4,
+      VrResource1_Index = vrresource1_index,
+      VrResource2_Index = vrresource2_index,
+      VrResource3_Index = vrresource3_index,
+      VrResource4_Index = vrresource4_index,
+      Mode = "SNP",
+      Output_Vcf_Name = final_gvcf_name + ".SNP.genotypegvcf.haplotypecaller.bqsr.baserecal.markdup.setnm.sortsam.bwa",
+  }
+
+  call VariantRecalibratorINDEL {
+    input:
+      ref_fasta = ref_fasta,
+      ref_fasta_index = ref_fasta_index,
+      ref_dict = ref_dict,
+      Input_Vcf_Index = GenotypeGVCFs.output_vcf_index,
+      Input_Vcf = GenotypeGVCFs.output_vcf,
+      GATK3 = gatk3,
+      VrResource5 = vrresource5,
+      VrResource5_Index = vrresource5_index,
+      Mode = "INDEL",
+      Output_Vcf_Name = final_gvcf_name + ".INDEL.genotypegvcf.haplotypecaller.bqsr.baserecal.markdup.setnm.sortsam.bwa",
+  }
+
+  call ApplyRecalibrationSNP {
+    input:
+      GATK3 = gatk3,
+      ref_fasta = ref_fasta,
+      ref_fasta_index = ref_fasta_index,
+      ref_dict = ref_dict,
+      Input_Vcf = GenotypeGVCFs.output_vcf,
+      TranchesFile = VariantRecalibratorSNP.tranchesFile,
+      RecalFile = VariantRecalibratorSNP.recalFile,
+      Mode = "SNP",
+      Output_Vcf_Name = final_gvcf_name + ".applyrecal.SNP.genotypegvcf.haplotypecaller.bqsr.baserecal.markdup.setnm.sortsam.bwa",
+  }
+
+  call ApplyRecalibrationINDEL {
+    input:
+      GATK3 = gatk3,
+      ref_fasta = ref_fasta,
+      ref_fasta_index = ref_fasta_index,
+      ref_dict = ref_dict,
+      Input_Vcf = GenotypeGVCFs.output_vcf,
+      TranchesFile = VariantRecalibratorINDEL.tranchesFile,
+      RecalFile = VariantRecalibratorINDEL.recalFile,
+      Mode = "INDEL",
+      Output_Vcf_Name = final_gvcf_name + ".applyrecal.INDEL.genotypegvcf.haplotypecaller.bqsr.baserecal.markdup.setnm.sortsam.bwa",
+  }
+
+  # Outputs that will be retained when execution is complete
+  
+  output {
+    MarkDuplicates.duplicate_metrics
+    GatherBqsrReports.*
+    GatherVCFs.*
+    VariantRecalibratorSNP.*
+    VariantRecalibratorINDEL.*
+    ApplyRecalibrationSNP.*
+    ApplyRecalibrationINDEL.*
+  }
 }
 
 # Generate sets of intervals for scatter-gathering over chromosomes
@@ -200,7 +320,7 @@ task BwaMem {
   String Base_Name
   
     command {
-      /tools/scattergather-test/tools/bwa/bwa mem -t 18 -K 100000000 -M -v 3 ${Ref_Fasta} ${Input_Fastq1} ${Input_Fastq2} > ${Base_Name}.sam
+      bwa mem -t 18 -R "@RG\tID:G\tSM:test\tLB:RH\tPL:ILLUMINA\tPU:NotDefined" -M ${Ref_Fasta} ${Input_Fastq1} ${Input_Fastq2} > ${Base_Name}.sam
     }
   output {
     File outputfile = "${Base_Name}.sam"
@@ -214,7 +334,7 @@ task SortSam {
   String Base_Name
 
     command {
-      java -Xmx8G -jar \
+      java -Xmx8G -Djava.io.tmpdir=`pwd`/tmp -jar \
       ${PICARD} \
       SortSam \
       INPUT=${Input_File} \
@@ -224,9 +344,10 @@ task SortSam {
       CREATE_MD5_FILE=false \
       CREATE_INDEX=true \
       VALIDATION_STRINGENCY=LENIENT
-      }
+    }
   output {
     File SamOutputBam = "${Base_Name}.bam"
+    File SamOutputBamIndex = "${Base_Name}.bai"
   }
 }
 
@@ -239,7 +360,7 @@ task SetNm {
   String Base_Name
   
     command {
-      java -Xmx500m -jar \
+      java -Xmx8G -Djava.io.tmpdir=`pwd`/tmp -jar \
       ${PICARD} \
       SetNmAndUqTags \
       INPUT=${Input_Bam} \
@@ -247,15 +368,14 @@ task SetNm {
       CREATE_INDEX=true \
       CREATE_MD5_FILE=true \
       REFERENCE_SEQUENCE=${Ref_Fasta}
-      }
+    }
 
   output {
-    File SamOutputBam = "${Base_Name}.setnm.bam"
-    File output_bam_index = "${Base_Name}.setnm.bai"
-    File output_bam_md5 = "${Base_Name}.setnm.bam.md5"
+    File SamOutputBam = "${Base_Name}.bam"
+    File output_bam_index = "${Base_Name}.bai"
+    File output_bam_md5 = "${Base_Name}.bam.md5"
   }
 }
-
 
 task MarkDup {
   File Input_File
@@ -263,7 +383,7 @@ task MarkDup {
   String Base_Name
   
     command {
-      java -jar -Xmx8G \
+      java -Xmx8G -Djava.io.tmpdir=`pwd`/tmp -jar \
       ${PICARD} \
       MarkDuplicates \
       I=${Input_File} \
@@ -274,8 +394,8 @@ task MarkDup {
       CREATE_INDEX=true
     }
   output {
-  File MarkDupOutputBam = "${Base_Name}.bam"
-  File MarkDupOutputBai = "${Base_Name}.bai"
+    File MarkDupOutputBam = "${Base_Name}.bam"
+    File MarkDupOutputBai = "${Base_Name}.bai"
   }
 }
 
@@ -297,7 +417,7 @@ task BaseRecalibrator {
   command {
     java -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -XX:+PrintFlagsFinal \
       -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintGCDetails \
-      -Xloggc:gc_log.log -Dsamjdk.use_async_io=false -Xmx4000m \
+      -Xloggc:gc_log.log -Dsamjdk.use_async_io=false -Xmx8G \
       -jar ${GATK4} \
       BaseRecalibrator \
       -R ${ref_fasta} \
@@ -330,7 +450,7 @@ task ApplyBQSR {
   command {
     java -XX:+PrintFlagsFinal -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps \
       -XX:+PrintGCDetails -Xloggc:gc_log.log -Dsamjdk.use_async_io=false \
-      -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xmx3000m \
+      -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xmx8G \
       -jar ${GATK4} \
       ApplyBQSR \
       --createOutputBamMD5 \
@@ -359,12 +479,12 @@ task GatherBqsrReports {
   String Output_Report_Filename
 
   command {
-    java -Xmx3000m -jar \
+    java -Xmx8G -jar \
       ${GATK4} \
       GatherBQSRReports \
       -I ${sep=' -I ' Input_Bqsr_Reports} \
       -O ${Output_Report_Filename}
-    }
+  }
   output {
     File output_bqsr_report = "${Output_Report_Filename}"
   }
@@ -372,14 +492,14 @@ task GatherBqsrReports {
 
 # Combine multiple recalibrated BAM files from scattered ApplyRecalibration runs
 task GatherBamFiles {
-  File GATK4
+  File PICARD
   Array[File] Input_Bams
   File Input_Unmapped_Reads_Bam
   String Output_Bam_Basename
 
   command {
-    java -Xmx2000m -jar \
-      ${GATK4} \
+    java -Xmx8G -Djava.io.tmpdir=`pwd`/tmp -jar \
+      ${PICARD} \
       GatherBamFiles \
       INPUT=${sep=' INPUT=' Input_Bams} \
       INPUT=${Input_Unmapped_Reads_Bam} \
@@ -387,7 +507,7 @@ task GatherBamFiles {
       CREATE_INDEX=true \
       CREATE_MD5_FILE=true
 
-    }
+  }
   output {
     File output_bam = "${Output_Bam_Basename}.bam"
     File output_bam_index = "${Output_Bam_Basename}.bai"
@@ -395,10 +515,213 @@ task GatherBamFiles {
   }
 }
 
+# Call variants on a single sample with HaplotypeCaller to produce a GVCF
+task HaplotypeCaller {
+  File GATK3
+  File Input_Bam
+  File Input_Bam_Index
+  File Interval_List
+  File ref_dict
+  File ref_fasta
+  File ref_fasta_index
+  String Gvcf_Basename
 
+  command {
+    java -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xmx8G \
+      -jar ${GATK3} \
+      -T HaplotypeCaller \
+      -R ${ref_fasta} \
+      -o ${Gvcf_Basename}.g.vcf \
+      -I ${Input_Bam} \
+      -L ${Interval_List} \
+      -ERC GVCF
+  }
+#      -variant_index_parameter 128000 \
+#      -variant_index_type LINEAR
 
+  output {
+    File output_gvcf = "${Gvcf_Basename}.g.vcf"
+    File output_gvcf_index = "${Gvcf_Basename}.g.vcf.idx"
+  }
+}
 
+# Combine multiple VCFs or GVCFs from scattered HaplotypeCaller runs
+task GatherVCFs {
+  File PICARD
+  Array[File] Input_Vcfs
+  Array[File] Input_Vcfs_Indexes
+  String Output_Vcf_Name
 
+  # using MergeVcfs instead of GatherVcfs so we can create indices
+  # WARNING 2015-10-28 15:01:48 GatherVcfs  Index creation not currently supported when gathering block compressed VCFs.
+  command {
+    java -Xmx8G -Djava.io.tmpdir=`pwd`/tmp -jar \
+    ${PICARD} \
+    MergeVcfs \
+    INPUT=${sep=' INPUT=' Input_Vcfs} \
+    OUTPUT=${Output_Vcf_Name}.vcf
+  }
+  output {
+    File output_vcfs = "${Output_Vcf_Name}.vcf"
+    File output_vcfs_index = "${Output_Vcf_Name}.vcf.idx"
+  }
+}
 
+task GenotypeGVCFs {
+  File GATK3
+  File Input_Vcf
+  File Input_Vcf_Index
+  File ref_fasta
+  File ref_fasta_index
+  File ref_dict
+  String Output_Name
 
+  command {
+    java -Xmx8G -jar \
+    ${GATK3} \
+    -T GenotypeGVCFs \
+    -nt 18 \
+    -R ${ref_fasta} \
+    -o ${Output_Name}.vcf \
+    --variant ${Input_Vcf}
+  }
+  output {
+    File output_vcf = "${Output_Name}.vcf"
+    File output_vcf_index = "${Output_Name}.vcf.idx"
+  }
+}
 
+task VariantRecalibratorSNP {
+  File GATK3
+  File Input_Vcf
+  File Input_Vcf_Index
+  File VrResource1
+  File VrResource2
+  File VrResource3
+  File VrResource4
+  File VrResource1_Index
+  File VrResource2_Index
+  File VrResource3_Index
+  File VrResource4_Index
+  File ref_fasta
+  File ref_fasta_index
+  File ref_dict
+  String Output_Vcf_Name
+  String Mode
+
+  command {
+    java -Xmx8G -jar \
+    ${GATK3} \
+    -T VariantRecalibrator \
+    -R ${ref_fasta} \
+    -input ${Input_Vcf} \
+    -mode ${Mode} \
+    -resource:1000G,known=false,training=true,truth=false,prior=10.0 ${VrResource1} \
+    -resource:omni,known=false,training=true,truth=true,prior=12.0 ${VrResource2} \
+    -resource:dbsnp,known=true,training=false,truth=false,prior=2.0 ${VrResource3} \
+    -resource:hapmap,known=false,training=true,truth=true,prior=15.0 ${VrResource4} \
+    -an QD -an MQ -an ReadPosRankSum -an FS -an SOR -tranche 100.0 -tranche 99.95 \
+    -tranche 99.9 -tranche 99.5 -tranche 99.0 -tranche 97.0 -tranche 96.0 -tranche 95.0 \
+    -tranche 94.0 -tranche 93.5 -tranche 93.0 -tranche 92.0 -tranche 91.0 -tranche 90.0 \
+    -recalFile ${Output_Vcf_Name}.recal \
+    -tranchesFile ${Output_Vcf_Name}.tranches \
+    -rscriptFile ${Output_Vcf_Name}.plots.R
+  }
+  output {
+    File recalFile = "${Output_Vcf_Name}.recal"
+    File tranchesFile = "${Output_Vcf_Name}.tranches"
+    File rscriptFile = "${Output_Vcf_Name}.plots.R"
+  }
+}
+
+task VariantRecalibratorINDEL {
+  File GATK3
+  File Input_Vcf
+  File Input_Vcf_Index
+  File VrResource5
+  File VrResource5_Index
+  File ref_fasta
+  File ref_fasta_index
+  File ref_dict
+  String Output_Vcf_Name
+  String Mode
+
+  command {
+    java -Xmx8G -jar \
+    ${GATK3} \
+    -T VariantRecalibrator \
+    -R ${ref_fasta} \
+    -input ${Input_Vcf} \
+    -mode ${Mode} \
+    -resource:mills,known=true,training=true,truth=true,prior=12.0 ${VrResource5} \
+    -an QD -an MQRankSum -an ReadPosRankSum -an FS -an SOR \
+    -tranche 100.0 -tranche 99.95 \
+    -tranche 99.9 -tranche 99.5 -tranche 99.0 -tranche 97.0 -tranche 96.0 -tranche 95.0 \
+    -tranche 94.0 -tranche 93.5 -tranche 93.0 -tranche 92.0 -tranche 91.0 -tranche 90.0 \
+    -recalFile ${Output_Vcf_Name}.recal \
+    -tranchesFile ${Output_Vcf_Name}.tranches \
+    -rscriptFile ${Output_Vcf_Name}.plots.R \
+    -mG 4
+  }
+  output {
+    File recalFile = "${Output_Vcf_Name}.recal"
+    File tranchesFile = "${Output_Vcf_Name}.tranches"
+    File rscriptFile = "${Output_Vcf_Name}.plots.R"
+  }
+}
+
+task ApplyRecalibrationSNP {
+  File GATK3
+  File ref_fasta
+  File ref_fasta_index
+  File ref_dict
+  File Input_Vcf
+  File TranchesFile
+  File RecalFile
+  String Mode
+  String Output_Vcf_Name
+
+  command {
+    java -jar -Xmx8G \
+    ${GATK3} \
+    -T ApplyRecalibration \
+    -input ${Input_Vcf} \
+    -R ${ref_fasta} \
+    -mode ${Mode} \
+    --ts_filter_level 99.6 \
+    -tranchesFile ${TranchesFile} \
+    -recalFile ${RecalFile} \
+    -o ${Output_Vcf_Name}.vcf
+  }
+  output {
+    File output_vcf = "${Output_Vcf_Name}.vcf"
+  }
+}
+
+task ApplyRecalibrationINDEL {
+  File GATK3
+  File ref_fasta
+  File ref_fasta_index
+  File ref_dict
+  File Input_Vcf
+  File TranchesFile
+  File RecalFile
+  String Mode
+  String Output_Vcf_Name
+
+  command {
+    java -jar -Xmx8G \
+    ${GATK3} \
+    -T ApplyRecalibration \
+    -input ${Input_Vcf} \
+    -R ${ref_fasta} \
+    -mode ${Mode} \
+    --ts_filter_level 95.0 \
+    -tranchesFile ${TranchesFile} \
+    -recalFile ${RecalFile} \
+    -o ${Output_Vcf_Name}.vcf
+  }
+  output {
+    File output_vcf = "${Output_Vcf_Name}.vcf"
+  }
+}
