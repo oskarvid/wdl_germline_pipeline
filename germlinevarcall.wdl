@@ -191,17 +191,6 @@ call MarkDup {
       Output_Name = final_gvcf_name + ".genotypegvcf.haplotypecaller.bqsr.baserecal.markdup.setnm.sortsam.bwa",
   }
 
-  call CopyFiles {
-    input:
-      ApplyBqsrRep = GatherBqsrReports.output_bqsr_report,
-      BaseRecBam = GatherBamFiles.output_bam,
-      BaseRecBamIndex = GatherBamFiles.output_bam_index,
-      HcVcf = GatherVCFs.output_vcfs,
-      HcVcfIdx = GatherVCFs.output_vcfs_index,
-      GenoVcf = GenotypeGVCFs.output_vcf,
-      GenoVcfIdx = GenotypeGVCFs.output_vcf_index,
-  }
-
   call VariantRecalibratorSNP {
     input:
       ref_fasta = ref_fasta,
@@ -272,6 +261,25 @@ call MarkDup {
     VariantRecalibratorINDEL.*
     ApplyRecalibrationSNP.*
     ApplyRecalibrationINDEL.*
+  }
+
+  call CopyFiles {
+    input:
+      ApplyBqsrRep = GatherBqsrReports.output_bqsr_report,
+      BaseRecBam = GatherBamFiles.output_bam,
+      BaseRecBamIndex = GatherBamFiles.output_bam_index,
+      HcVcf = GatherVCFs.output_vcfs,
+      HcVcfIdx = GatherVCFs.output_vcfs_index,
+      GenoVcf = GenotypeGVCFs.output_vcf,
+      GenoVcfIdx = GenotypeGVCFs.output_vcf_index,
+      VarRecIndRec = VariantRecalibratorINDEL.recalFile,
+      VarRecIndTran = VariantRecalibratorINDEL.tranchesFile,
+      VarRecSnpRec = VariantRecalibratorSNP.recalFile,
+      VarRecSnpTran = VariantRecalibratorSNP.tranchesFile,
+      AppRecSnpVcf = ApplyRecalibrationSNP.output_vcf,
+      AppRecSnpIdx = ApplyRecalibrationSNP.output_vcf_index,
+      AppRecIndVcf = ApplyRecalibrationINDEL.output_vcf,
+      AppRecIndIdx = ApplyRecalibrationINDEL.output_vcf_index,
   }
 }
 
@@ -602,26 +610,6 @@ task GenotypeGVCFs {
   }
 }
 
-task CopyFiles {
-  File ApplyBqsrRep
-  File BaseRecBam
-  File BaseRecBamIndex
-  File HcVcf
-  File HcVcfIdx
-  File GenoVcf
-  File GenoVcfIdx
-
-  command {
-    cp ${ApplyBqsrRep} /home/oskar/ && \
-    cp ${BaseRecBam} /home/oskar/ && \
-    cp ${BaseRecBamIndex} /home/oskar/ && \
-    cp ${HcVcf} /home/oskar/ && \
-    cp ${HcVcfIdx} /home/oskar/ && \
-    cp ${GenoVcf} /home/oskar/ && \
-    cp ${GenoVcfIdx} /home/oskar/
-  }
-}
-
 task VariantRecalibratorSNP {
   File GATK3
   File Input_Vcf
@@ -756,5 +744,41 @@ task ApplyRecalibrationINDEL {
   output {
     File output_vcf = "${Output_Vcf_Name}.vcf"
     File output_vcf_index = "${Output_Vcf_Name}.vcf.idx"
+  }
+}
+
+task CopyFiles {
+  File ApplyBqsrRep
+  File BaseRecBam
+  File BaseRecBamIndex
+  File HcVcf
+  File HcVcfIdx
+  File GenoVcf
+  File GenoVcfIdx
+  File VarRecIndRec
+  File VarRecIndTran
+  File VarRecSnpRec
+  File VarRecSnpTran
+  File AppRecSnpVcf
+  File AppRecSnpIdx
+  File AppRecIndVcf
+  File AppRecIndIdx
+
+  command {
+    cp ${ApplyBqsrRep} /home/oskar/ && \
+    cp ${BaseRecBam} /home/oskar/ && \
+    cp ${BaseRecBamIndex} /home/oskar/ && \
+    cp ${HcVcf} /home/oskar/ && \
+    cp ${HcVcfIdx} /home/oskar/ && \
+    cp ${GenoVcf} /home/oskar/ && \
+    cp ${GenoVcfIdx} /home/oskar/ \
+    cp ${VarRecIndRec} /home/oskar/ \
+    cp ${VarRecIndTran} /home/oskar/ \
+    cp ${VarRecSnpRec} /home/oskar/ \
+    cp ${VarRecSnpTran} /home/oskar/ \
+    cp ${AppRecSnpVcf} /home/oskar/ \
+    cp ${AppRecSnpIdx} /home/oskar/ \
+    cp ${AppRecIndVcf} /home/oskar/ \
+    cp ${AppRecIndIdx} /home/oskar/
   }
 }
