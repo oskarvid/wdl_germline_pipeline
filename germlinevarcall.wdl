@@ -68,16 +68,6 @@ call SortSam {
     Ref_Fasta = ref_fasta
 }
 
-call SetNm {
-  input:
-    Ref_Fasta = ref_fasta,
-    ref_fasta_index = ref_fasta_index,
-    ref_dict = ref_dict,
-    PICARD = picard,
-    Base_Name = Base_Name + ".setnm.sortsam.bwa",
-    Input_Bam = SortSam.SamOutputBam,
-}
-
 call MarkDup {
   input:
     PICARD = picard,
@@ -367,32 +357,6 @@ task SortSam {
   output {
     File SamOutputBam = "${Base_Name}.bam"
     File SamOutputBamIndex = "${Base_Name}.bai"
-  }
-}
-
-task SetNm {
-  File PICARD
-  File Input_Bam
-  File Ref_Fasta
-  File ref_dict
-  File ref_fasta_index
-  String Base_Name
-  
-    command {
-      java -Xmx8G -Djava.io.tmpdir=`pwd`/tmp -jar \
-      ${PICARD} \
-      SetNmAndUqTags \
-      INPUT=${Input_Bam} \
-      OUTPUT=${Base_Name}.bam \
-      CREATE_INDEX=true \
-      CREATE_MD5_FILE=true \
-      REFERENCE_SEQUENCE=${Ref_Fasta}
-    }
-
-  output {
-    File SamOutputBam = "${Base_Name}.bam"
-    File output_bam_index = "${Base_Name}.bai"
-    File output_bam_md5 = "${Base_Name}.bam.md5"
   }
 }
 
