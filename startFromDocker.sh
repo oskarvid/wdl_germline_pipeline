@@ -10,14 +10,14 @@ GROUPID=`id -g`
 CUST_USERID="-u=$USERID:$GROUPID"
 
 # Data file paths
-REFERENCE="/path/to/ref/files"
-INPUT="patg/to/wdl_pipeline/data"
+REFERENCE="/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer"
+INPUT="/home/oskar/wdl_pipeline/data"
 
 # Tools folder
-TOOLS="/path/to/wdl_pipeline/tools"
+TOOLS="/home/oskar//wdl_pipeline/tools"
 
 # Working directory
-WORKINGDIR="/path/to/wdl_pipeline"
+WORKINGDIR="/home/oskar/wdl_pipeline"
 
 # Script paths
 WDLSCRIPT="germlinevarcall.wdl"

@@ -38,7 +38,7 @@ workflow GermlineVarCall {
   String Base_Name
   String final_gvcf_name
   String recalibrated_bam_basename = Base_Name + ".aligned.duplicates_marked.recalibrated"
-  String outputfolder = "/wdl_pipeline"
+  String outputfolder = "/wdl_pipeline/"
 
 call CreateSequenceGroupingTSV {
   input:
@@ -72,7 +72,7 @@ call SortSam {
 call MarkDup {
   input:
     PICARD = picard,
-    Base_Name = Base_Name + ".markdup.setnm.sortsam.bwa",
+    Base_Name = Base_Name + ".markdup.sortsam.bwa",
     Input_File = SortSam.SamOutputBam
 }
     
@@ -110,7 +110,7 @@ call MarkDup {
   }
   
   # Merge the recalibration reports resulting from by-interval recalibration
-  call GatherBqsrReports{
+  call GatherBqsrReports {
     input:
       Input_Bqsr_Reports = BaseRecalibrator.Recalibration_Report,
       Output_Report_Filename = Base_Name + ".recal_data.csv",
@@ -142,7 +142,7 @@ call MarkDup {
       PICARD=picard,
       Input_Bams = ApplyBQSR.recalibrated_bam,
       Input_Unmapped_Reads_Bam = ApplyBQSRToUnmappedReads.recalibrated_bam,
-      Output_Bam_Basename = Base_Name + ".bqsr.baserecal.markdup.setnm.sortsam.bwa",
+      Output_Bam_Basename = Base_Name + ".bqsr.baserecal.markdup.sortsam.bwa",
   }
 
   # Call variants in parallel over WGS calling intervals
@@ -155,7 +155,7 @@ call MarkDup {
         Input_Bam = GatherBamFiles.output_bam,
         Input_Bam_Index = GatherBamFiles.output_bam_index,
         Interval_List = subInterval,
-        Gvcf_Basename = Base_Name + ".haplotypecaller.bqsr.baserecal.markdup.setnm.sortsam.bwa",
+        Gvcf_Basename = Base_Name + ".haplotypecaller.bqsr.baserecal.markdup.sortsam.bwa",
         ref_dict = ref_dict,
         ref_fasta = ref_fasta,
         ref_fasta_index = ref_fasta_index,
@@ -179,7 +179,7 @@ call MarkDup {
       ref_dict = ref_dict,
       Input_Vcf = GatherVCFs.output_vcfs,
       Input_Vcf_Index = GatherVCFs.output_vcfs_index,
-      Output_Name = final_gvcf_name + ".genotypegvcf.haplotypecaller.bqsr.baserecal.markdup.setnm.sortsam.bwa",
+      Output_Name = final_gvcf_name + ".genotypegvcf.haplotypecaller.bqsr.baserecal.markdup.sortsam.bwa",
   }
 
   call VariantRecalibratorSNP {
@@ -199,7 +199,7 @@ call MarkDup {
       VrResource3_Index = vrresource3_index,
       VrResource4_Index = vrresource4_index,
       Mode = "SNP",
-      Output_Vcf_Name = final_gvcf_name + ".SNP.genotypegvcf.haplotypecaller.bqsr.baserecal.markdup.setnm.sortsam.bwa",
+      Output_Vcf_Name = final_gvcf_name + ".SNP.genotypegvcf.haplotypecaller.bqsr.baserecal.markdup.sortsam.bwa",
   }
 
   call VariantRecalibratorINDEL {
@@ -213,7 +213,7 @@ call MarkDup {
       VrResource5 = vrresource5,
       VrResource5_Index = vrresource5_index,
       Mode = "INDEL",
-      Output_Vcf_Name = final_gvcf_name + ".INDEL.genotypegvcf.haplotypecaller.bqsr.baserecal.markdup.setnm.sortsam.bwa",
+      Output_Vcf_Name = final_gvcf_name + ".INDEL.genotypegvcf.haplotypecaller.bqsr.baserecal.markdup.sortsam.bwa",
   }
 
   call ApplyRecalibrationSNP {
@@ -226,7 +226,7 @@ call MarkDup {
       TranchesFile = VariantRecalibratorSNP.tranchesFile,
       RecalFile = VariantRecalibratorSNP.recalFile,
       Mode = "SNP",
-      Output_Vcf_Name = final_gvcf_name + ".applyrecal.SNP.genotypegvcf.haplotypecaller.bqsr.baserecal.markdup.setnm.sortsam.bwa",
+      Output_Vcf_Name = final_gvcf_name + ".applyrecal.SNP.genotypegvcf.haplotypecaller.bqsr.baserecal.markdup.sortsam.bwa",
   }
 
   call ApplyRecalibrationINDEL {
@@ -239,7 +239,7 @@ call MarkDup {
       TranchesFile = VariantRecalibratorINDEL.tranchesFile,
       RecalFile = VariantRecalibratorINDEL.recalFile,
       Mode = "INDEL",
-      Output_Vcf_Name = final_gvcf_name + ".applyrecal.INDEL.genotypegvcf.haplotypecaller.bqsr.baserecal.markdup.setnm.sortsam.bwa",
+      Output_Vcf_Name = final_gvcf_name + ".applyrecal.INDEL.genotypegvcf.haplotypecaller.bqsr.baserecal.markdup.sortsam.bwa",
   }
 
   # Outputs that will be retained when execution is complete
@@ -742,7 +742,7 @@ task CopyFiles {
     cp ${HcVcf} ${OutputFolder} && \
     cp ${HcVcfIdx} ${OutputFolder} && \
     cp ${GenoVcf} ${OutputFolder} && \
-    cp ${GenoVcfIdx} ${OutputFolder} && \
+    cp ${GenoVcfIdx} ${OutputFolder} \
     cp ${VarRecIndRec} ${OutputFolder} && \
     cp ${VarRecIndTran} ${OutputFolder} && \
     cp ${VarRecSnpRec} ${OutputFolder} && \
@@ -750,6 +750,6 @@ task CopyFiles {
     cp ${AppRecSnpVcf} ${OutputFolder} && \
     cp ${AppRecSnpIdx} ${OutputFolder} && \
     cp ${AppRecIndVcf} ${OutputFolder} && \
-    cp ${AppRecIndIdx} ${OutputFolder}
+    cp ${AppRecIndIdx} ${OutputFolder} &&
   }
 }

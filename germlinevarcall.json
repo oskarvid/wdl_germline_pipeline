@@ -35,6 +35,7 @@
   "GermlineVarCall.input_fastq2": "/data/test_R2.fastq.gz",
   "GermlineVarCall.Base_Name": "sample",
   "GermlineVarCall.final_gvcf_name": "gatheredvcfs",
+  "GermlineVarCall.groups": "/wdl_pipeline/intervals/groups.list",
   "GermlineVarCall.scattered_calling_intervals": [
   "/wdl_pipeline/intervals/1.list",
   "/wdl_pipeline/intervals/2.list",
