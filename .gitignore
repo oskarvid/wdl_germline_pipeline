@@ -1,2 +1,6 @@
 cromwell*
-tools
+tools/*
+!tools/.gitkeep
+germlinevarcalltest*
+germlinevarcall.wdl.bak
+intervals/groups*

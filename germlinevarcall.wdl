@@ -38,6 +38,7 @@ workflow GermlineVarCall {
   String Base_Name
   String final_gvcf_name
   String recalibrated_bam_basename = Base_Name + ".aligned.duplicates_marked.recalibrated"
+  String outputfolder = "/wdl_pipeline"
 
 call CreateSequenceGroupingTSV {
   input:
@@ -255,6 +256,7 @@ call MarkDup {
 
   call CopyFiles {
     input:
+      OutputFolder = outputfolder,
       ApplyBqsrRep = GatherBqsrReports.output_bqsr_report,
       BaseRecBam = GatherBamFiles.output_bam,
       BaseRecBamIndex = GatherBamFiles.output_bam_index,
@@ -329,7 +331,7 @@ task BwaMem {
   String Base_Name
   
     command {
-      bwa mem -t 18 -R "@RG\tID:G\tSM:test\tLB:RH\tPL:ILLUMINA\tPU:NotDefined" -M ${Ref_Fasta} ${Input_Fastq1} ${Input_Fastq2} > ${Base_Name}.sam
+      bwa mem -t 4 -R "@RG\tID:G\tSM:test\tLB:RH\tPL:ILLUMINA\tPU:NotDefined" -M ${Ref_Fasta} ${Input_Fastq1} ${Input_Fastq2} > ${Base_Name}.sam
     }
   output {
     File outputfile = "${Base_Name}.sam"
@@ -343,7 +345,7 @@ task SortSam {
   String Base_Name
 
     command {
-      java -Xmx8G -Djava.io.tmpdir=`pwd`/tmp -jar \
+      java -Xmx6G -Djava.io.tmpdir=`pwd`/tmp -jar \
       ${PICARD} \
       SortSam \
       INPUT=${Input_File} \
@@ -366,7 +368,7 @@ task MarkDup {
   String Base_Name
   
     command {
-      java -Xmx8G -Djava.io.tmpdir=`pwd`/tmp -jar \
+      java -Xmx6G -Djava.io.tmpdir=`pwd`/tmp -jar \
       ${PICARD} \
       MarkDuplicates \
       I=${Input_File} \
@@ -400,7 +402,7 @@ task BaseRecalibrator {
   command {
     java -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -XX:+PrintFlagsFinal \
       -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintGCDetails \
-      -Xloggc:gc_log.log -Dsamjdk.use_async_io=false -Xmx8G \
+      -Xloggc:gc_log.log -Dsamjdk.use_async_io=false -Xmx6G \
       -jar ${GATK4} \
       BaseRecalibrator \
       -R ${ref_fasta} \
@@ -433,7 +435,7 @@ task ApplyBQSR {
   command {
     java -XX:+PrintFlagsFinal -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps \
       -XX:+PrintGCDetails -Xloggc:gc_log.log -Dsamjdk.use_async_io=false \
-      -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xmx8G \
+      -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xmx6G \
       -jar ${GATK4} \
       ApplyBQSR \
       --createOutputBamMD5 \
@@ -462,7 +464,7 @@ task GatherBqsrReports {
   String Output_Report_Filename
 
   command {
-    java -Xmx8G -jar \
+    java -Xmx6G -jar \
       ${GATK4} \
       GatherBQSRReports \
       -I ${sep=' -I ' Input_Bqsr_Reports} \
@@ -481,7 +483,7 @@ task GatherBamFiles {
   String Output_Bam_Basename
 
   command {
-    java -Xmx8G -Djava.io.tmpdir=`pwd`/tmp -jar \
+    java -Xmx6G -Djava.io.tmpdir=`pwd`/tmp -jar \
       ${PICARD} \
       GatherBamFiles \
       INPUT=${sep=' INPUT=' Input_Bams} \
@@ -510,7 +512,7 @@ task HaplotypeCaller {
   String Gvcf_Basename
 
   command {
-    java -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xmx8G \
+    java -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xmx6G \
       -jar ${GATK3} \
       -T HaplotypeCaller \
       -R ${ref_fasta} \
@@ -538,7 +540,7 @@ task GatherVCFs {
   # using MergeVcfs instead of GatherVcfs so we can create indices
   # WARNING 2015-10-28 15:01:48 GatherVcfs  Index creation not currently supported when gathering block compressed VCFs.
   command {
-    java -Xmx8G -Djava.io.tmpdir=`pwd`/tmp -jar \
+    java -Xmx6G -Djava.io.tmpdir=`pwd`/tmp -jar \
     ${PICARD} \
     MergeVcfs \
     INPUT=${sep=' INPUT=' Input_Vcfs} \
@@ -560,10 +562,10 @@ task GenotypeGVCFs {
   String Output_Name
 
   command {
-    java -Xmx8G -jar \
+    java -Xmx6G -jar \
     ${GATK3} \
     -T GenotypeGVCFs \
-    -nt 18 \
+    -nt 4 \
     -R ${ref_fasta} \
     -o ${Output_Name}.vcf \
     --variant ${Input_Vcf}
@@ -593,9 +595,10 @@ task VariantRecalibratorSNP {
   String Mode
 
   command {
-    java -Xmx8G -jar \
+    java -Xmx6G -jar \
     ${GATK3} \
     -T VariantRecalibrator \
+    -nt 4 \
     -R ${ref_fasta} \
     -input ${Input_Vcf} \
     -mode ${Mode} \
@@ -630,9 +633,10 @@ task VariantRecalibratorINDEL {
   String Mode
 
   command {
-    java -Xmx8G -jar \
+    java -Xmx6G -jar \
     ${GATK3} \
     -T VariantRecalibrator \
+    -nt 4 \
     -R ${ref_fasta} \
     -input ${Input_Vcf} \
     -mode ${Mode} \
@@ -665,9 +669,10 @@ task ApplyRecalibrationSNP {
   String Output_Vcf_Name
 
   command {
-    java -jar -Xmx8G \
+    java -jar -Xmx6G \
     ${GATK3} \
     -T ApplyRecalibration \
+    -nt 4 \
     -input ${Input_Vcf} \
     -R ${ref_fasta} \
     -mode ${Mode} \
@@ -694,9 +699,10 @@ task ApplyRecalibrationINDEL {
   String Output_Vcf_Name
 
   command {
-    java -jar -Xmx8G \
+    java -jar -Xmx6G \
     ${GATK3} \
     -T ApplyRecalibration \
+    -nt 4 \
     -input ${Input_Vcf} \
     -R ${ref_fasta} \
     -mode ${Mode} \
@@ -727,22 +733,23 @@ task CopyFiles {
   File AppRecSnpIdx
   File AppRecIndVcf
   File AppRecIndIdx
+  String OutputFolder
 
   command {
-    cp ${ApplyBqsrRep} /home/oskar/ && \
-    cp ${BaseRecBam} /home/oskar/ && \
-    cp ${BaseRecBamIndex} /home/oskar/ && \
-    cp ${HcVcf} /home/oskar/ && \
-    cp ${HcVcfIdx} /home/oskar/ && \
-    cp ${GenoVcf} /home/oskar/ && \
-    cp ${GenoVcfIdx} /home/oskar/ \
-    cp ${VarRecIndRec} /home/oskar/ \
-    cp ${VarRecIndTran} /home/oskar/ \
-    cp ${VarRecSnpRec} /home/oskar/ \
-    cp ${VarRecSnpTran} /home/oskar/ \
-    cp ${AppRecSnpVcf} /home/oskar/ \
-    cp ${AppRecSnpIdx} /home/oskar/ \
-    cp ${AppRecIndVcf} /home/oskar/ \
-    cp ${AppRecIndIdx} /home/oskar/
+    cp ${ApplyBqsrRep} ${OutputFolder} && \
+    cp ${BaseRecBam} ${OutputFolder} && \
+    cp ${BaseRecBamIndex} ${OutputFolder} && \
+    cp ${HcVcf} ${OutputFolder} && \
+    cp ${HcVcfIdx} ${OutputFolder} && \
+    cp ${GenoVcf} ${OutputFolder} && \
+    cp ${GenoVcfIdx} ${OutputFolder} && \
+    cp ${VarRecIndRec} ${OutputFolder} && \
+    cp ${VarRecIndTran} ${OutputFolder} && \
+    cp ${VarRecSnpRec} ${OutputFolder} && \
+    cp ${VarRecSnpTran} ${OutputFolder} && \
+    cp ${AppRecSnpVcf} ${OutputFolder} && \
+    cp ${AppRecSnpIdx} ${OutputFolder} && \
+    cp ${AppRecIndVcf} ${OutputFolder} && \
+    cp ${AppRecIndIdx} ${OutputFolder}
   }
 }
