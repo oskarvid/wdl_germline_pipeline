@@ -32,4 +32,4 @@ JAVA="java -jar /tools/cromwell-0.21.jar run $WDLSCRIPT $WDLJSON"
 #docker run --rm -ti $CUST_USERID -v=$WORKINGDIR:/wdl_pipeline -v=$TOOLS:/tools -v=$REFERENCE:/references -v=$INPUT:/data -w=/wdl_pipeline $IMAGE_ID bash
 
 # For Running
-docker run -t --rm $CUST_USERID -v=$WORKINGDIR:/wdl_pipeline -v=$TOOLS:/tools -v=$REFERENCE:/references -v=$INPUT:/data -w=/wdl_pipeline --cpuset-cpus="0-3" -c 512  $IMAGE_ID sh -c "$JAVA"
+sudo docker run -t --rm $CUST_USERID -v=$WORKINGDIR:/wdl_pipeline -v=$TOOLS:/tools -v=$REFERENCE:/references -v=$INPUT:/data -w=/wdl_pipeline --cpuset-cpus="0-3" -c 512  $IMAGE_ID sh -c "$JAVA"

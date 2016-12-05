@@ -26,8 +26,9 @@ and copy the image ID of your "oskarv/wdl" image, open startFromDocker.sh with a
 Scroll down and change the file paths at "# Data File Paths", "# Tools folder", "# Working directory" and "# Script paths" to point to their respective folders. Do not use a trailing "/" at the end of the file paths, thus "/file/path" is correct wile "/file/path/" is not.  
 "REFERENCE" is where your reference files are.  
 "DATA" is where your input files are, e.g ~/wdl_pipeline/data.  
-"WORKINGDIR" is where your output data will get written, e.g ~/wdl_pipeline. 
-"TOOLS" is where you placed picard, GATK, cromwell and wdl, e.g ~/wdl_pipeline/tools. The .json file assumes that the files are named as follows: GenomeAnalysisTK.jar (i.e GATK 3.6), GATK-4.jar, picard.jar, cromwell-0.21.jar and wdltool-0.4.jar.  
+"WORKINGDIR" is where your output data will get written, e.g ~/wdl_pipeline.  
+"TOOLS" is where you placed picard, GATK, cromwell and wdl, e.g ~/wdl_pipeline/tools.  
+The .json file assumes that the files are named as follows: GenomeAnalysisTK.jar (i.e GATK 3.6), GATK-4.jar, picard.jar, cromwell-0.21.jar and wdltool-0.4.jar.  
 
 You are now ready to run the script:  
 ```
