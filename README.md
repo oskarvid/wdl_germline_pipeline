@@ -30,4 +30,4 @@ sh startFromDocker.sh
 ```
 Be adviced that while using the provided toy fastq files the pipeline will crash when it reaches "VariantRecalibration" due to too few samples in the test fastq files. As long as you have a complete set of fastq files the pipeline will finish successfully though.  
 
-
+You will need to download the reference files too, follow the instructions to access the ftp site [here](https://software.broadinstitute.org/gatk/download/bundle) and download the b37 reference files to the folder you specified for the reference files above.
