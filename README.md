@@ -26,7 +26,7 @@ Scroll down and change the file paths at "# Data File Paths", "# Tools folder", 
 "INPUT" is where your input files are, e.g ~/wdl_pipeline/data.  
 "TOOLS" is where you placed picard, GATK, cromwell and wdl, e.g ~/wdl_pipeline/tools.  
 "WORKINGDIR" is where your output data will get written, e.g ~/wdl_pipeline.  
-As long as you set WORKINGDIR to the path where your wdl, json and conf files are, you don't need to change those settings.  
+As long as you set WORKINGDIR to the path where your wdl, json and conf files are, you don't need to change the settings for their location.  
 The .json file assumes that the files are named as follows: GenomeAnalysisTK.jar, picard.jar and cromwell-25.jar.  
 
 You are now ready to run the script:  
