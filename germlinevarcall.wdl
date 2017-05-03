@@ -94,8 +94,8 @@ call MarkDup {
 }
     
   # Perform Base Quality Score Recalibration (BQSR) and call variants on the sorted BAM in parallel
+  # Generate the recalibration model by interval
   scatter (subgroup in scatter_interval_list) {
-    # Generate the recalibration model by interval
     call BaseRecalibrator {
       input:
         GATK3 = gatk3,
@@ -151,6 +151,26 @@ call MarkDup {
       GATK3 = gatk3,
   }
 
+  # Do an additional round of recalibration on the unmapped reads (which would otherwise 
+  # be left behind because they're not accounted for in the scatter intervals). This is 
+  # done by running ApplyBQSR with "-L unmapped".
+  Array[String] unmapped_group_interval = ["unmapped"]
+    call PrintReads as PrintReadsOnUnmappedReads {
+      input:
+        GATK3 = gatk3,
+        Input_Bam = MarkDup.MarkDupOutputBam,
+        Input_Bam_Index = MarkDup.MarkDupOutputBai,
+        Output_Bam_Basename = recalibrated_bam_basename,
+        Recalibration_Report = GatherBqsrReports.output_bqsr_report,
+        Sequence_Group_Interval = unmapped_group_interval,
+        ref_dict = ref_dict,
+        ref_fasta = ref_fasta,
+        ref_fasta_index = ref_fasta_index,
+    }
+
+  # Merge the recalibrated BAM files resulting from by-interval recalibration
+  # TODO: when we have capability of adding elements to arrays, can just have one array 
+  # as an input and add the output of the above task to the scattered printreads bams
   call GatherBamFiles {
     input:
       PICARD = picard,
@@ -270,7 +290,9 @@ call MarkDup {
     ApplyRecalibrationINDEL.*
   }
 }
-# Generate sets of intervals for scatter-gathering over chromosomes
+# This is a backup remnant that uses the "groups" file from the intervals folder as basis for 
+# scatter gather parallelization in case there's some issue with interval based scatter gather
+# parallelization, this task generates sets of intervals for scatter-gathering over chromosomes
 
 task CreateSequenceGroupingTSV {
   File Groups
@@ -458,6 +480,27 @@ task PrintReads {
     File recalibrated_bam = "${Output_Bam_Basename}.bam"
     File recalibrated_bam_index = "${Output_Bam_Basename}.bai"
   }
+  output {
+    File recalibrated_bam = "${Output_Bam_Basename}.bam"
+  }
+}
+
+# Combine multiple recalibration tables from scattered BaseRecalibrator runs
+task GatherBqsrReports {
+  File GATK3
+  Array[File] Input_Bqsr_Reports
+  String Output_Report_Filename
+
+  command {
+    java -Xmx6G -cp \
+      ${GATK3} \
+      org.broadinstitute.gatk.tools.GatherBqsrReports \
+      I=${sep=' I=' Input_Bqsr_Reports} \
+      O=${Output_Report_Filename}
+  }
+  output {
+    File output_bqsr_report = "${Output_Report_Filename}"
+  }
 }
 
 # Combine multiple recalibrated BAM files from scattered ApplyRecalibration runs
@@ -474,8 +517,7 @@ task GatherBamFiles {
       INPUT=${sep=' INPUT=' Input_Bams} \
       INPUT=${Input_Unmapped_Reads_Bam} \
       OUTPUT=${Output_Bam_Basename}.bam \
-      CREATE_INDEX=true \
-      CREATE_MD5_FILE=true
+      CREATE_INDEX=true
   }
   output {
     File output_bam = "${Output_Bam_Basename}.bam"
@@ -509,8 +551,6 @@ task HaplotypeCaller {
   File GATK3
   File Input_Bam
   File Input_Bam_Index
-  File Input_Bam2
-  File Input_Bam2_Index
   Array[String] Sequence_Group_Interval
   File ref_dict
   File ref_fasta
@@ -524,7 +564,6 @@ task HaplotypeCaller {
       -R ${ref_fasta} \
       -o ${Gvcf_Basename}.g.vcf \
       -I ${Input_Bam} \
-      -I ${Input_Bam2} \
       -L ${sep=" -L " Sequence_Group_Interval} \
       -XL hs37d5 \
       -ERC GVCF
