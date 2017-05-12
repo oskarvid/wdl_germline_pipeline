@@ -1,1 +1,2 @@
-java -jar -Dconfig.file=/data/wdl_pipeline_bak/application.conf tools/cromwell-25.jar server
+java -jar -Dconfig.file=cromwell-mysql/cromwell/app-config/application.conf \
+tools/cromwell-27.jar server

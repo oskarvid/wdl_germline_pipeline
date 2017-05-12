@@ -33,17 +33,17 @@
   "GermlineVarCall.input_fastq1": "/data/test_R1.fastq.gz",
   "GermlineVarCall.input_fastq2": "/data/test_R2.fastq.gz",
   "GermlineVarCall.Base_Name": "sample",
-  "GermlineVarCall.groups": "/wdl_pipeline/intervals/groups.list",
+  "GermlineVarCall.groups": "/intervals/groups.list",
   "GermlineVarCall.final_gvcf_name": "gatheredvcfs",
   "GermlineVarCall.scatter_interval_list": [
-    "/wdl_pipeline/intervals/output_intervals_10/1_of_9/scattered.interval_list",
-    "/wdl_pipeline/intervals/output_intervals_10/2_of_9/scattered.interval_list",
-    "/wdl_pipeline/intervals/output_intervals_10/3_of_9/scattered.interval_list",
-    "/wdl_pipeline/intervals/output_intervals_10/4_of_9/scattered.interval_list",
-    "/wdl_pipeline/intervals/output_intervals_10/5_of_9/scattered.interval_list",
-    "/wdl_pipeline/intervals/output_intervals_10/6_of_9/scattered.interval_list",
-    "/wdl_pipeline/intervals/output_intervals_10/7_of_9/scattered.interval_list",
-    "/wdl_pipeline/intervals/output_intervals_10/8_of_9/scattered.interval_list",
-    "/wdl_pipeline/intervals/output_intervals_10/9_of_9/scattered.interval_list"
+    "/intervals/output_intervals_10/1_of_9/scattered.interval_list",
+    "/intervals/output_intervals_10/2_of_9/scattered.interval_list",
+    "/intervals/output_intervals_10/3_of_9/scattered.interval_list",
+    "/intervals/output_intervals_10/4_of_9/scattered.interval_list",
+    "/intervals/output_intervals_10/5_of_9/scattered.interval_list",
+    "/intervals/output_intervals_10/6_of_9/scattered.interval_list",
+    "/intervals/output_intervals_10/7_of_9/scattered.interval_list",
+    "/intervals/output_intervals_10/8_of_9/scattered.interval_list",
+    "/intervals/output_intervals_10/9_of_9/scattered.interval_list"
  ]
 }

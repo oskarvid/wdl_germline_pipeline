@@ -1,19 +1,16 @@
 FROM ubuntu:16.04
 MAINTAINER Oskar Vidarsson <oskar.vidarsson@uib.no>
 
-# Placeholder in case I want to add the tools to the image
-#ADD wdltool-0.4.jar /tools/
-#ADD cromwell-0.21.jar /tools/
-#ADD GenomeAnalysisTK.jar /tools/GenomeAnalysisTK-3.6/
-
-# Install wget
+# Install wget and bwa
 RUN apt-get update && apt-get install -y \
 bwa \
-wget \
-&& rm -rf /var/lib/apt/lists/*
+wget && \
+rm -rf /var/lib/apt/lists/* && \
+rm -rf /usr/share/locale/ /usr/share/man/ /root/.cache
 
-# Clean
-RUN rm -rf /usr/share/locale/ /usr/share/man/ /root/.cache
+# Download picard
+RUN mkdir /Jar && \
+wget https://github.com/broadinstitute/picard/releases/download/2.9.1/picard.jar -O /Jar/picard.jar
 
 # Install Java 8
 RUN mkdir /opt/jdk && cd /opt && \
