@@ -1,0 +1,53 @@
+{
+  "GermlineVarCall.known_indels_sites_VCFs": [
+  "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer/1000G_phase1.indels.b37.vcf.gz",
+  "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer/Mills_and_1000G_gold_standard.indels.b37.vcf.gz"    
+  ],
+  "GermlineVarCall.known_indels_sites_indices": [
+  "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer/Mills_and_1000G_gold_standard.indels.b37.vcf.gz.tbi",
+  "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer/1000G_phase1.indels.b37.vcf.gz.tbi"
+  ],
+  "GermlineVarCall.gatk3": "/home/oskar/wdl_pipeline/tools/GenomeAnalysisTK.jar",
+  "GermlineVarCall.picard": "/home/oskar/wdl_pipeline/tools/picard.jar",
+  "GermlineVarCall.dbSNP_vcf": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer/dbsnp.vcf.gz",
+  "GermlineVarCall.dbSNP_vcf_index": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer/dbsnp.vcf.gz.tbi",
+  "GermlineVarCall.v1000g_vcf": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer/1000g.vcf.gz",
+  "GermlineVarCall.omni_vcf": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer/omni.vcf.gz",
+  "GermlineVarCall.dbsnp_vcf": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer/dbsnp.vcf.gz",
+  "GermlineVarCall.hapmap_vcf": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer/hapmap.vcf.gz",
+  "GermlineVarCall.mills_vcf": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer/Mills_and_1000G_gold_standard.indels.b37.vcf.gz",
+  "GermlineVarCall.v1000g_vcf_index": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer/1000g.vcf.gz.tbi",
+  "GermlineVarCall.omni_vcf_index": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer/omni.vcf.gz.tbi",
+  "GermlineVarCall.dbsnp_vcf_index": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer/dbsnp.vcf.gz.tbi",
+  "GermlineVarCall.hapmap_vcf_index": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer/hapmap.vcf.gz.tbi",
+  "GermlineVarCall.mills_vcf_index": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer/Mills_and_1000G_gold_standard.indels.b37.vcf.gz.tbi",
+  "GermlineVarCall.ref_fasta_index": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer/human_g1k_v37_decoy.fasta.fai",
+  "GermlineVarCall.ref_fasta": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer/human_g1k_v37_decoy.fasta",
+  "GermlineVarCall.ref_sa": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer/human_g1k_v37_decoy.fasta.sa",
+  "GermlineVarCall.ref_bwt": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer/human_g1k_v37_decoy.fasta.bwt",
+  "GermlineVarCall.ref_ann": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer/human_g1k_v37_decoy.fasta.ann",
+  "GermlineVarCall.ref_amb": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer/human_g1k_v37_decoy.fasta.amb",
+  "GermlineVarCall.ref_pac": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer/human_g1k_v37_decoy.fasta.pac",
+  "GermlineVarCall.fasta_bwt": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer/human_g1k_v37_decoy.fasta.bwt",
+  "GermlineVarCall.ref_dict": "/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer/human_g1k_v37_decoy.dict",
+  "GermlineVarCall.input_fastq1": "/home/oskar/wdl_pipeline_bak/data/test.fastq",
+  "GermlineVarCall.input_fastq2": "/home/oskar/wdl_pipeline_bak/data/test2.fastq",
+  "GermlineVarCall.fastqfiles": [
+    "/home/oskar/wdl_pipeline_bak/data/test.fastq",
+    "/home/oskar/wdl_pipeline_bak/data/test2.fastq"
+  ],
+  "GermlineVarCall.Base_Name": "sample",
+  "GermlineVarCall.groups": "/home/oskar/wdl_pipeline/intervals/groups.list",
+  "GermlineVarCall.final_gvcf_name": "gatheredvcfs",
+  "GermlineVarCall.scatter_interval_list": [
+    "/home/oskar/wdl_pipeline_bak/intervals/output_intervals_10/1_of_9/scattered.interval_list",
+    "/home/oskar/wdl_pipeline_bak/intervals/output_intervals_10/2_of_9/scattered.interval_list",
+    "/home/oskar/wdl_pipeline_bak/intervals/output_intervals_10/3_of_9/scattered.interval_list",
+    "/home/oskar/wdl_pipeline_bak/intervals/output_intervals_10/4_of_9/scattered.interval_list",
+    "/home/oskar/wdl_pipeline_bak/intervals/output_intervals_10/5_of_9/scattered.interval_list",
+    "/home/oskar/wdl_pipeline_bak/intervals/output_intervals_10/6_of_9/scattered.interval_list",
+    "/home/oskar/wdl_pipeline_bak/intervals/output_intervals_10/7_of_9/scattered.interval_list",
+    "/home/oskar/wdl_pipeline_bak/intervals/output_intervals_10/8_of_9/scattered.interval_list",
+    "/home/oskar/wdl_pipeline_bak/intervals/output_intervals_10/9_of_9/scattered.interval_list"
+ ]
+}

@@ -1,0 +1,4 @@
+cromwell-mysql/mysql/data/
+cromwell-executions
+cromwell-workflow-logs
+tools/*

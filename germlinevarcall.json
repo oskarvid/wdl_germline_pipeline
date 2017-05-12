@@ -1,0 +1,49 @@
+{
+  "GermlineVarCall.known_indels_sites_VCFs": [
+  "/references/1000G_phase1.indels.b37.vcf",
+  "/references/Mills_and_1000G_gold_standard.indels.b37.vcf"
+  ],
+  "GermlineVarCall.known_indels_sites_indices": [
+  "/references/Mills_and_1000G_gold_standard.indels.b37.vcf.idx",
+  "/references/1000G_phase1.indels.b37.vcf.idx"
+  ],
+  "GermlineVarCall.gatk3": "/tools/GenomeAnalysisTK.jar",
+  "GermlineVarCall.picard": "/tools/picard.jar",
+  "GermlineVarCall.dbSNP_vcf": "/references/dbsnp.vcf",
+  "GermlineVarCall.dbSNP_vcf_index": "/references/dbsnp.vcf.idx",
+  "GermlineVarCall.v1000g_vcf": "/references/1000g.vcf",
+  "GermlineVarCall.omni_vcf": "/references/omni.vcf",
+  "GermlineVarCall.dbsnp_vcf": "/references/dbsnp.vcf",
+  "GermlineVarCall.hapmap_vcf": "/references/hapmap.vcf",
+  "GermlineVarCall.mills_vcf": "/references/Mills_and_1000G_gold_standard.indels.b37.vcf",
+  "GermlineVarCall.v1000g_vcf_index": "/references/1000g.vcf.idx",
+  "GermlineVarCall.omni_vcf_index": "/references/omni.vcf.idx",
+  "GermlineVarCall.dbsnp_vcf_index": "/references/dbsnp.vcf.idx",
+  "GermlineVarCall.hapmap_vcf_index": "/references/hapmap.vcf.idx",
+  "GermlineVarCall.mills_vcf_index": "/references/Mills_and_1000G_gold_standard.indels.b37.vcf.idx",
+  "GermlineVarCall.ref_fasta_index": "/references/human_g1k_v37_decoy.fasta.fai",
+  "GermlineVarCall.ref_fasta": "/references/human_g1k_v37_decoy.fasta",
+  "GermlineVarCall.ref_sa": "/references/human_g1k_v37_decoy.fasta.sa",
+  "GermlineVarCall.ref_bwt": "/references/human_g1k_v37_decoy.fasta.bwt",
+  "GermlineVarCall.ref_ann": "/references/human_g1k_v37_decoy.fasta.ann",
+  "GermlineVarCall.ref_amb": "/references/human_g1k_v37_decoy.fasta.amb",
+  "GermlineVarCall.ref_pac": "/references/human_g1k_v37_decoy.fasta.pac",
+  "GermlineVarCall.fasta_bwt": "/references/human_g1k_v37_decoy.fasta.bwt",
+  "GermlineVarCall.ref_dict": "/references/human_g1k_v37_decoy.dict",
+  "GermlineVarCall.input_fastq1": "/data/test_R1.fastq.gz",
+  "GermlineVarCall.input_fastq2": "/data/test_R2.fastq.gz",
+  "GermlineVarCall.Base_Name": "sample",
+  "GermlineVarCall.groups": "/intervals/groups.list",
+  "GermlineVarCall.final_gvcf_name": "gatheredvcfs",
+  "GermlineVarCall.scatter_interval_list": [
+    "/intervals/output_intervals_10/1_of_9/scattered.interval_list",
+    "/intervals/output_intervals_10/2_of_9/scattered.interval_list",
+    "/intervals/output_intervals_10/3_of_9/scattered.interval_list",
+    "/intervals/output_intervals_10/4_of_9/scattered.interval_list",
+    "/intervals/output_intervals_10/5_of_9/scattered.interval_list",
+    "/intervals/output_intervals_10/6_of_9/scattered.interval_list",
+    "/intervals/output_intervals_10/7_of_9/scattered.interval_list",
+    "/intervals/output_intervals_10/8_of_9/scattered.interval_list",
+    "/intervals/output_intervals_10/9_of_9/scattered.interval_list"
+ ]
+}
