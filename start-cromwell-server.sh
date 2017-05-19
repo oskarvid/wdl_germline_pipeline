@@ -1,18 +1,23 @@
 # Data file paths
 REFERENCE="/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer"
-INPUT="/home/oskar/01-workspace/00-temp/wdl_pipeline/data"
+INPUT="`pwd`/data"
 
 # Interval list files
-INTERVALS="/home/oskar/01-workspace/00-temp/wdl_pipeline/intervals"
+INTERVALS="`pwd`/intervals"
 
 # Tools folder
-TOOLS="/home/oskar/01-workspace/00-temp/wdl_pipeline/tools"
+TOOLS="`pwd`/tools"
+
+# Application config
+APPCONFIG="`pwd`/application.conf"
 
 # Working directory
-WORKINGDIR="/home/oskar/01-workspace/00-temp/wdl_pipeline"
+WORKINGDIR="`pwd`"
 
 docker run --rm -t -p 8000:8000 \
--v /home/oskar/01-workspace/00-temp/wdl_pipeline/application.conf:/cromwell/application.conf \
+-v=`pwd`/cromwell-executions:/cromwell-executions \
+-v=`pwd`/cromwell-workflow-logs:/cromwell-workflow-logs \
+-v=$APPCONFIG:/cromwell/application.conf \
 -v=$INTERVALS:/intervals \
 -v=$WORKINGDIR:/wdl_pipeline \
 -v=$TOOLS:/tools \
