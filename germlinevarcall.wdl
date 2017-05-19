@@ -313,7 +313,6 @@ task FastqToSam {
   runtime {
     continueOnReturnCode: [0, 1, 2]
   }
-
 }
 
 task BwaMem {
@@ -399,7 +398,6 @@ task MarkDup {
     File MarkDupOutputBai = "${Base_Name}.bai"
     File MetricsFile = "${Base_Name}.metrics"
   }
-
 }
 
 # Generate Base Quality Score Recalibration (BQSR) model
@@ -439,7 +437,6 @@ task BaseRecalibrator {
   output {
     File Recalibration_Report = "${Recalibration_Report_Filename}"
   }
-  
 }
 
 # Apply Base Quality Score Recalibration (BQSR) model
@@ -469,7 +466,6 @@ task PrintReads {
     File recalibrated_bam = "${Output_Bam_Basename}.bam"
     File recalibrated_bam_index = "${Output_Bam_Basename}.bai"
   }
-  
 }
 
 # Combine multiple recalibrated BAM files from scattered ApplyRecalibration runs
@@ -495,7 +491,6 @@ task GatherBamFiles {
   runtime {
     continueOnReturnCode: [0, 1, 2]
   }
-
 }
 
 # Combine multiple recalibration tables from scattered BaseRecalibrator runs
@@ -514,7 +509,6 @@ task GatherBqsrReports {
   output {
     File output_bqsr_report = "${Output_Report_Filename}"
   }
-
 }
 
 # Call variants on a single sample with HaplotypeCaller to produce a GVCF
@@ -546,7 +540,6 @@ task HaplotypeCaller {
     File output_gvcf = "${Gvcf_Basename}.g.vcf"
     File output_gvcf_index = "${Gvcf_Basename}.g.vcf.idx"
   }
-  
 }
 
 # Combine multiple VCFs or GVCFs from scattered HaplotypeCaller runs
@@ -569,7 +562,6 @@ task GatherVCFs {
     File output_vcfs = "${Output_Vcf_Name}.g.vcf"
     File output_vcfs_index = "${Output_Vcf_Name}.g.vcf.idx"
   }
-
 }
 
 task GenotypeGVCFs {
@@ -594,7 +586,6 @@ task GenotypeGVCFs {
     File output_vcf = "${Output_Name}.g.vcf"
     File output_vcf_index = "${Output_Name}.g.vcf.idx"
   }
-
 }
 
 task VariantRecalibratorSNP {
@@ -640,7 +631,6 @@ task VariantRecalibratorSNP {
     File tranchesFile = "${Output_Vcf_Name}.tranches"
     File rscriptFile = "${Output_Vcf_Name}.plots.R"
   }
-  
 }
 
 task VariantRecalibratorINDEL {
@@ -680,7 +670,6 @@ task VariantRecalibratorINDEL {
     File tranchesFile = "${Output_Vcf_Name}.tranches"
     File rscriptFile = "${Output_Vcf_Name}.plots.R"
   }
-  
 }
 
 task ApplyRecalibrationSNP {
@@ -711,7 +700,6 @@ task ApplyRecalibrationSNP {
     File output_vcf = "${Output_Vcf_Name}.g.vcf"
     File output_vcf_index = "${Output_Vcf_Name}.g.vcf.idx"
   }
-  
 }
 
 task ApplyRecalibrationINDEL {
@@ -742,5 +730,4 @@ task ApplyRecalibrationINDEL {
     File output_vcf = "${Output_Vcf_Name}.g.vcf"
     File output_vcf_index = "${Output_Vcf_Name}.g.vcf.idx"
   }
-  
 }

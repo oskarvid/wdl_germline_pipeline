@@ -1,7 +1,7 @@
 {
   "default_runtime_attributes": {
     "final_workflow_outputs_dir": "/home/oskar/",
-    "write_to_cache": "false",
-    "read_from_cache": "false"
+    "write_to_cache": "true",
+    "read_from_cache": "true"
   }
 }

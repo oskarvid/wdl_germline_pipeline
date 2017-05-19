@@ -116,6 +116,7 @@ task CreateSequenceGroupingTSV {
 task FastqToSam {
   File PICARD
   File Input_Fastq1
+
   String Unmapped_Basename
 
     command {
@@ -134,7 +135,6 @@ task FastqToSam {
   output {
     File outputbam = "${Unmapped_Basename}.bam"
   }
-
 }
 
 task BwaMem {
@@ -197,7 +197,6 @@ task MergeBamAlignment {
   output {
     File output_bam = "${Output_Bam_Basename}.bam"
   }
-
 }
 
 task MarkDup {
@@ -221,5 +220,4 @@ task MarkDup {
     File MarkDupOutputBai = "${Base_Name}.bai"
     File MetricsFile = "${Base_Name}.metrics"
   }
-
 }
