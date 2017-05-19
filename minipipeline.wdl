@@ -56,7 +56,6 @@ scatter (fastq in fastqfiles) {
    input:
       PICARD = picard,
       Input_Fastq1 = fastq,
-#     Input_Fastq2 = input_fastq2,
      Unmapped_Basename = unmapped_basename,
   }
 
@@ -72,7 +71,6 @@ scatter (fastq in fastqfiles) {
       ref_pac = ref_pac,
       ref_sa = ref_sa,
       Input_Fastq1 = fastq,
-  #    Input_Fastq2 = input_fastq2,
       Base_Name = Base_Name + ".bwa",
   }
 
@@ -118,12 +116,11 @@ task CreateSequenceGroupingTSV {
 task FastqToSam {
   File PICARD
   File Input_Fastq1
-#  File Input_Fastq2
   String Unmapped_Basename
 
     command {
       time java -Xmx3G -XX:ParallelGCThreads=16 -Djava.io.tmpdir=`pwd`/tmp -jar \
-      ${PICARD} \
+      /Jar/picard.jar \
       FastqToSam \
       FASTQ=${Input_Fastq1} \
       O=${Unmapped_Basename}.bam \
@@ -151,7 +148,6 @@ task BwaMem {
   File ref_pac
   File ref_sa
   File Input_Fastq1 
-#  File Input_Fastq2
   String Base_Name
   
     command {
@@ -174,7 +170,7 @@ task MergeBamAlignment {
 
     command {
       java -Xmx3G -XX:ParallelGCThreads=16 -Djava.io.tmpdir=`pwd`/tmp -jar \
-      ${PICARD} \
+      /Jar/picard.jar \
       MergeBamAlignment \
       VALIDATION_STRINGENCY=SILENT \
       EXPECTED_ORIENTATIONS=FR \
@@ -211,7 +207,7 @@ task MarkDup {
   
     command {
       java -Xmx3G -XX:ParallelGCThreads=16 -Djava.io.tmpdir=`pwd`/tmp -jar \
-      ${PICARD} \
+      /Jar/picard.jar \
       MarkDuplicates \
       I=${sep=' I=' Input_File} \
       O=${Base_Name}.bam \

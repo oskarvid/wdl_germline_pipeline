@@ -35,6 +35,10 @@
   "GermlineVarCall.Base_Name": "sample",
   "GermlineVarCall.groups": "/intervals/groups.list",
   "GermlineVarCall.final_gvcf_name": "gatheredvcfs",
+  "GermlineVarCall.fastqfiles": [
+    "/data/test_R1.fastq.gz",
+    "/data/test_R1.fastq.gz"
+  ],
   "GermlineVarCall.scatter_interval_list": [
     "/intervals/output_intervals_10/1_of_9/scattered.interval_list",
     "/intervals/output_intervals_10/2_of_9/scattered.interval_list",

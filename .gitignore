@@ -2,3 +2,5 @@ cromwell-mysql/mysql/data/
 cromwell-executions
 cromwell-workflow-logs
 tools/*
+germlinevarcall-server-bwa-scatter.json
+docker-compose.yaml

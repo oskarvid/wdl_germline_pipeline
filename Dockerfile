@@ -8,6 +8,10 @@ wget && \
 rm -rf /var/lib/apt/lists/* && \
 rm -rf /usr/share/locale/ /usr/share/man/ /root/.cache
 
+RUN mkdir wait-for-it && \
+wget --no-check-certificate -O /wait-for-it/wait-for-it.sh \
+https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh
+
 # Download picard
 RUN mkdir /Jar && \
 wget https://github.com/broadinstitute/picard/releases/download/2.9.1/picard.jar -O /Jar/picard.jar
@@ -19,5 +23,4 @@ tar -zxf jdk-8u5-linux-x64.tar.gz -C /opt/jdk && \
 rm jdk-8u5-linux-x64.tar.gz && \
 update-alternatives --install /usr/bin/java java /opt/jdk/jdk1.8.0_05/bin/java 100 && \
 update-alternatives --install /usr/bin/javac javac /opt/jdk/jdk1.8.0_05/bin/javac 100
-
 

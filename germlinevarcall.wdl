@@ -336,10 +336,6 @@ task BwaMem {
   output {
     File outputfile = "${Base_Name}.sam"
   }
-#  runtime {
-#    docker: "oskarv/wdl"
-#  }
-
 }
 
 task MergeBamAlignment {
@@ -379,9 +375,6 @@ task MergeBamAlignment {
     } 
   output {
     File output_bam = "${Output_Bam_Basename}.bam"
-  }
-  runtime {
-    docker: "oskarv/picard"
   }
 }
 

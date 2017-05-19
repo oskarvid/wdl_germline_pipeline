@@ -56,7 +56,6 @@ scatter (fastq in fastqfiles) {
    input:
       PICARD = picard,
       Input_Fastq1 = fastq,
-#     Input_Fastq2 = input_fastq2,
      Unmapped_Basename = unmapped_basename,
   }
 
@@ -72,7 +71,6 @@ scatter (fastq in fastqfiles) {
       ref_pac = ref_pac,
       ref_sa = ref_sa,
       Input_Fastq1 = fastq,
-  #    Input_Fastq2 = input_fastq2,
       Base_Name = Base_Name + ".bwa",
   }
 
@@ -135,8 +133,6 @@ call MarkDup {
         GATK3 = gatk3,
         Input_Bam = PrintReads.recalibrated_bam,
         Input_Bam_Index = PrintReads.recalibrated_bam_index,
-#        Input_Bam2 = PrintReadsOnUnmappedReads.recalibrated_bam,
-#        Input_Bam2_Index = PrintReadsOnUnmappedReads.recalibrated_bam_index,
         Sequence_Group_Interval = subgroup,
         Gvcf_Basename = Base_Name + ".haplotypecaller.bqsr.baserecal.markdup.sortsam.bwa",
         ref_dict = ref_dict,
@@ -157,26 +153,8 @@ call MarkDup {
     input:
       PICARD = picard,
       Input_Bams = PrintReads.recalibrated_bam,
-#      Input_Unmapped_Reads_Bam = PrintReadsOnUnmappedReads.recalibrated_bam,
       Output_Bam_Basename = Base_Name + ".bqsr.baserecal.markdup.sortsam.bwa",
   }
-
-  # Do an additional round of recalibration on the unmapped reads (which would otherwise 
-  # be left behind because they're not accounted for in the scatter intervals). This is 
-  # done by running ApplyBQSR with "-L unmapped".
-#  Array[String] unmapped_group_interval = ["unmapped"]
-#    call PrintReads as PrintReadsOnUnmappedReads {
-#      input:
-#        GATK3 = gatk3,
-#        Input_Bam = MarkDup.MarkDupOutputBam,
-#        Input_Bam_Index = MarkDup.MarkDupOutputBai,
-#        Output_Bam_Basename = recalibrated_bam_basename,
-#        Recalibration_Report = GatherBqsrReports.output_bqsr_report,
-#        Sequence_Group_Interval = unmapped_group_interval,
-#        ref_dict = ref_dict,
-#        ref_fasta = ref_fasta,
-#        ref_fasta_index = ref_fasta_index,
-#    }
 
   # Combine GVCFs into a single sample GVCF file
   call GatherVCFs {
@@ -289,7 +267,6 @@ task CreateSequenceGroupingTSV {
 task FastqToSam {
   File PICARD
   File Input_Fastq1
-#  File Input_Fastq2
   String Unmapped_Basename
 
     command {
@@ -308,9 +285,6 @@ task FastqToSam {
   output {
     File outputbam = "${Unmapped_Basename}.bam"
   }
-  runtime {
-    docker: "oskarv/picard:sha256:44063b985c6dec264474c348274528dba9a6dbedca0c138fcf651901dc0c83e6"
-  }
 }
 
 task BwaMem {
@@ -324,7 +298,6 @@ task BwaMem {
   File ref_pac
   File ref_sa
   File Input_Fastq1 
-#  File Input_Fastq2
   String Base_Name
   
     command {
@@ -374,9 +347,6 @@ task MergeBamAlignment {
   output {
     File output_bam = "${Output_Bam_Basename}.bam"
   }
-  runtime {
-    docker: "oskarv/picard:sha256:44063b985c6dec264474c348274528dba9a6dbedca0c138fcf651901dc0c83e6"
-  }
 }
 
 task MarkDup {
@@ -399,9 +369,6 @@ task MarkDup {
     File MarkDupOutputBam = "${Base_Name}.bam"
     File MarkDupOutputBai = "${Base_Name}.bai"
     File MetricsFile = "${Base_Name}.metrics"
-  }
-  runtime {
-    docker: "oskarv/picard:sha256:44063b985c6dec264474c348274528dba9a6dbedca0c138fcf651901dc0c83e6"
   }
 }
 
@@ -478,7 +445,6 @@ task PrintReads {
 task GatherBamFiles {
   File PICARD
   Array[File] Input_Bams
-#  File Input_Unmapped_Reads_Bam
   String Output_Bam_Basename
 
   command {
@@ -494,9 +460,6 @@ task GatherBamFiles {
     File output_bam = "${Output_Bam_Basename}.bam"
     File output_bam_index = "${Output_Bam_Basename}.bai"
     File output_bam_md5 = "${Output_Bam_Basename}.bam.md5"
-  }
-  runtime {
-    docker: "oskarv/picard:sha256:44063b985c6dec264474c348274528dba9a6dbedca0c138fcf651901dc0c83e6"
   }
 }
 
@@ -523,8 +486,6 @@ task HaplotypeCaller {
   File GATK3
   File Input_Bam
   File Input_Bam_Index
-#  File Input_Bam2
-#  File Input_Bam2_Index #      -I ${Input_Bam2} \
   Array[File] Sequence_Group_Interval
   File ref_dict
   File ref_fasta
@@ -568,9 +529,6 @@ task GatherVCFs {
   output {
     File output_vcfs = "${Output_Vcf_Name}.g.vcf"
     File output_vcfs_index = "${Output_Vcf_Name}.g.vcf.idx"
-  }
-  runtime {
-    docker: "oskarv/picard:sha256:44063b985c6dec264474c348274528dba9a6dbedca0c138fcf651901dc0c83e6"
   }
 }
 
