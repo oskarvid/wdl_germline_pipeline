@@ -9,7 +9,7 @@ INTERVALS="`pwd`/intervals"
 TOOLS="`pwd`/tools"
 
 # Application config
-APPCONFIG="`pwd`/application.conf"
+APPCONFIG="`pwd`/cromwell-mysql/cromwell/app-config/"
 
 # Working directory
 WORKINGDIR="`pwd`"
@@ -17,7 +17,7 @@ WORKINGDIR="`pwd`"
 docker run --rm -t -p 8000:8000 \
 -v=`pwd`/cromwell-executions:/cromwell-executions \
 -v=`pwd`/cromwell-workflow-logs:/cromwell-workflow-logs \
--v=$APPCONFIG:/cromwell/application.conf \
+-v=$APPCONFIG:/cromwell \
 -v=$INTERVALS:/intervals \
 -v=$WORKINGDIR:/wdl_pipeline \
 -v=$TOOLS:/tools \
