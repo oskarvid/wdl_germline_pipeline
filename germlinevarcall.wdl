@@ -179,23 +179,6 @@ call MarkDup {
       Output_Bam_Basename = Base_Name + ".bqsr.baserecal.markdup.sortsam.bwa",
   }
 
-  # Do an additional round of recalibration on the unmapped reads (which would otherwise 
-  # be left behind because they're not accounted for in the scatter intervals). This is 
-  # done by running ApplyBQSR with "-L unmapped".
-  Array[String] unmapped_group_interval = ["unmapped"]
-    call PrintReads as PrintReadsOnUnmappedReads {
-      input:
-        GATK3 = gatk3,
-        Input_Bam = MarkDup.MarkDupOutputBam,
-        Input_Bam_Index = MarkDup.MarkDupOutputBai,
-        Output_Bam_Basename = recalibrated_bam_basename,
-        Recalibration_Report = GatherBqsrReports.output_bqsr_report,
-        Sequence_Group_Interval = unmapped_group_interval,
-        ref_dict = ref_dict,
-        ref_fasta = ref_fasta,
-        ref_fasta_index = ref_fasta_index,
-    }
-
   # Combine GVCFs into a single sample GVCF file
   call GatherVCFs {
     input:
@@ -327,6 +310,10 @@ task FastqToSam {
   output {
     File outputbam = "${Unmapped_Basename}.bam"
   }
+  runtime {
+    continueOnReturnCode: [0, 1, 2]
+  }
+
 }
 
 task BwaMem {
@@ -349,6 +336,10 @@ task BwaMem {
   output {
     File outputfile = "${Base_Name}.sam"
   }
+#  runtime {
+#    docker: "oskarv/wdl"
+#  }
+
 }
 
 task MergeBamAlignment {
@@ -389,6 +380,9 @@ task MergeBamAlignment {
   output {
     File output_bam = "${Output_Bam_Basename}.bam"
   }
+  runtime {
+    docker: "oskarv/picard"
+  }
 }
 
 task MarkDup {
@@ -412,6 +406,7 @@ task MarkDup {
     File MarkDupOutputBai = "${Base_Name}.bai"
     File MetricsFile = "${Base_Name}.metrics"
   }
+
 }
 
 # Generate Base Quality Score Recalibration (BQSR) model
@@ -451,6 +446,7 @@ task BaseRecalibrator {
   output {
     File Recalibration_Report = "${Recalibration_Report_Filename}"
   }
+  
 }
 
 # Apply Base Quality Score Recalibration (BQSR) model
@@ -480,27 +476,7 @@ task PrintReads {
     File recalibrated_bam = "${Output_Bam_Basename}.bam"
     File recalibrated_bam_index = "${Output_Bam_Basename}.bai"
   }
-  output {
-    File recalibrated_bam = "${Output_Bam_Basename}.bam"
-  }
-}
-
-# Combine multiple recalibration tables from scattered BaseRecalibrator runs
-task GatherBqsrReports {
-  File GATK3
-  Array[File] Input_Bqsr_Reports
-  String Output_Report_Filename
-
-  command {
-    java -Xmx6G -cp \
-      ${GATK3} \
-      org.broadinstitute.gatk.tools.GatherBqsrReports \
-      I=${sep=' I=' Input_Bqsr_Reports} \
-      O=${Output_Report_Filename}
-  }
-  output {
-    File output_bqsr_report = "${Output_Report_Filename}"
-  }
+  
 }
 
 # Combine multiple recalibrated BAM files from scattered ApplyRecalibration runs
@@ -526,6 +502,7 @@ task GatherBamFiles {
   runtime {
     continueOnReturnCode: [0, 1, 2]
   }
+
 }
 
 # Combine multiple recalibration tables from scattered BaseRecalibrator runs
@@ -544,6 +521,7 @@ task GatherBqsrReports {
   output {
     File output_bqsr_report = "${Output_Report_Filename}"
   }
+
 }
 
 # Call variants on a single sample with HaplotypeCaller to produce a GVCF
@@ -551,6 +529,8 @@ task HaplotypeCaller {
   File GATK3
   File Input_Bam
   File Input_Bam_Index
+  File Input_Bam2
+  File Input_Bam2_Index
   Array[String] Sequence_Group_Interval
   File ref_dict
   File ref_fasta
@@ -573,6 +553,7 @@ task HaplotypeCaller {
     File output_gvcf = "${Gvcf_Basename}.g.vcf"
     File output_gvcf_index = "${Gvcf_Basename}.g.vcf.idx"
   }
+  
 }
 
 # Combine multiple VCFs or GVCFs from scattered HaplotypeCaller runs
@@ -595,6 +576,7 @@ task GatherVCFs {
     File output_vcfs = "${Output_Vcf_Name}.g.vcf"
     File output_vcfs_index = "${Output_Vcf_Name}.g.vcf.idx"
   }
+
 }
 
 task GenotypeGVCFs {
@@ -619,6 +601,7 @@ task GenotypeGVCFs {
     File output_vcf = "${Output_Name}.g.vcf"
     File output_vcf_index = "${Output_Name}.g.vcf.idx"
   }
+
 }
 
 task VariantRecalibratorSNP {
@@ -664,6 +647,7 @@ task VariantRecalibratorSNP {
     File tranchesFile = "${Output_Vcf_Name}.tranches"
     File rscriptFile = "${Output_Vcf_Name}.plots.R"
   }
+  
 }
 
 task VariantRecalibratorINDEL {
@@ -703,6 +687,7 @@ task VariantRecalibratorINDEL {
     File tranchesFile = "${Output_Vcf_Name}.tranches"
     File rscriptFile = "${Output_Vcf_Name}.plots.R"
   }
+  
 }
 
 task ApplyRecalibrationSNP {
@@ -733,6 +718,7 @@ task ApplyRecalibrationSNP {
     File output_vcf = "${Output_Vcf_Name}.g.vcf"
     File output_vcf_index = "${Output_Vcf_Name}.g.vcf.idx"
   }
+  
 }
 
 task ApplyRecalibrationINDEL {
@@ -763,4 +749,5 @@ task ApplyRecalibrationINDEL {
     File output_vcf = "${Output_Vcf_Name}.g.vcf"
     File output_vcf_index = "${Output_Vcf_Name}.g.vcf.idx"
   }
+  
 }
