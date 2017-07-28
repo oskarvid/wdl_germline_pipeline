@@ -3,6 +3,5 @@
     "final_workflow_outputs_dir": "/wdl_pipeline/",
     "write_to_cache": "true",
     "read_from_cache": "true",
-    "docker": "oskarv/wdl"
   }
 }

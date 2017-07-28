@@ -1,3 +1,17 @@
+#Temporary instructions, disregard the comments below for now.  
+Due to the complexity of setting up the basic file paths etc, I'll only give a very brief introduction, you'll need to either fill in the blanks or just read the code as is.  
+
+The simplest way of running the pipeline is by using the startFromDocker.sh script, you need to edit it according to where your reference files, input files etc are. Also edit the .json file with the correct file names, the file paths are based on the startFromDocker.sh file, so you should be fine if you just edit the names and point to the correct directories in the startFromDocker.sh file. Also, you need to download GATK4 and GATK3 and have docker installed. Then simply run "sh startFromDocker.sh"  
+
+To run the pipeline with all bells and whistles, these three basic steps are required.  
+1. sh start-mysql-server.sh  
+2. sh start-cromwell-server.sh  
+3. sh start-pipeline.sh  
+
+But you also need to edit the IP address in the cromwell application.conf file to the mysql docker IP.  
+And you need to edit the cromwell-server script and point the file paths to where all of your required files are.  
+And there's probably more things you need to edit that I won't cover at this time, just use the startFromDocker.sh script for basic testing.
+
 # Cromwell server on MySQL Database
 
 Uses docker-compose to link together a Cromwell docker image (built locally with `sbt docker` or available on [dockerhub](https://hub.docker.com/r/broadinstitute/cromwell/)) with a MySQL docker image.

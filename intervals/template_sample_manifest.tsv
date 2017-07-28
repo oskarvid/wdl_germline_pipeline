@@ -1,0 +1,21 @@
+"# This is a tab-separated file, each column has to be present for each line entry, if there is no relevant value use ""NA"""														
+# DO NOT USE '#' IN ANY OF THE VALUES, this is the comment character, and please avoid special characters in general														
+# There can, and must, be only one header line, i.e. only one non-commented line before the values start, header field names are strict, but case insensitive														
+# All string values, except for file names and notes, will be converted to upper case, and are thus case insensitive														
+# Header explanation:														
+# SAMPLE = Type: string. Value: name of sample, ensure that each name is written exactly the same for each sample entry, value is case insensitive, don't use spaces														
+# FLOWCELL = Type: string. Value: flowcell ID														
+"# LANE = Type: string. Value: lane number on flowcell, if all lanes are concatenated into one file just put '1', leading characters allowed (e.g. ""L001"")"														
+"# READ = Type: string. Value: read number, for paired end reads this should be either 1 or 2, for single end reads this should be 1. leading characters allowed (i.e. ""R1"")"														
+# LANE_FRACTION = Type: integer. Value: if the reads for a single lane are split into several files, this should denote which order the file has, if no split the value should be 1														
+# FILE = Type: string. Value: path to the .fastq(.gz) file such that it is accessible from the import mount point of the docker														
+# TARGET = Type: string. Value: code indicating the size of the target, WGS/WES/GPL for full genome/exome/gene panel, respectively, strict values														
+# TARGET_FILE = Type: string. Value: path to optional target file in .bed format; column 1, 2, and 3 must be chromosome, start, and stop, respectively, 0-based coordinates, stop not included														
+# SEGMENT_ORIENTATION = Type: string. Value: PE/SE for paired end/single end, respectively, strict values														
+# LIBRARY = Type: string. Value: library identifier used to identify if a sample has been sequenced with different libaries, and thus should be marked for duplicates separately														
+# PLATFORM = Type: string. Value: ILLUMINA/PACBIO/ONT, strict values														
+# SEQUENCER = Type: string. Value: sequencer serial number														
+# HPO = Type: string. Value: HPO ID, separated by ',' if multiple values														
+# NOTES = Type: string. Value: notable information regarding the file or sample, such as suspected issues etc.														
+SAMPLE	FLOWCELL	LANE	FILE1	FILE2	LIBRARY	PLATFORM
+sample01	H7LJGBBXX	1	/wdl_pipeline/data/test_R1.fastq.gz	/wdl_pipeline/data/test_R2.fastq.gz	LIB1	ILLUMINA

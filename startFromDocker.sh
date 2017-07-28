@@ -16,7 +16,7 @@ INPUT="/home/oskar/01-workspace/00-temp/wdl_pipeline/data"
 TOOLS="/home/oskar/01-workspace/00-temp/wdl_pipeline/tools"
 
 # Working directory
-WORKINGDIR="/home/oskar/01-workspace/00-temp/wdl_pipeline"
+WORKINGDIR="`pwd`"
 
 # Script paths
 WDLSCRIPT="germlinevarcall.wdl"
@@ -26,7 +26,7 @@ OPTIONS="workflowoptions.json"
 
 # Job
 JAVA="java -Dconfig.file=/wdl_pipeline/application.conf -jar \
-/tools/cromwell-25.jar run $WDLSCRIPT $WDLJSON $OPTIONS"
+/tools/cromwell-27.jar run $WDLSCRIPT $WDLJSON"
 
 # For Debug
 #docker run --rm -ti $CUST_USERID -v=$WORKINGDIR:/wdl_pipeline -v=$TOOLS:/tools -v=$REFERENCE:/references -v=$INPUT:/data -w=/wdl_pipeline $IMAGE_ID bash
