@@ -24,6 +24,6 @@ docker run --rm -t -p 8000:8000 \
 -v=$TOOLS:/tools \
 -v=$REFERENCE:/references \
 -v=$INPUT:/data \
-oskarv/wdl \
+oskarv/wdl:gatk4 \
 java -jar -Dconfig.file=/cromwell/application.conf \
-/tools/cromwell-27.jar server
+/tools/cromwell-28_2.jar server

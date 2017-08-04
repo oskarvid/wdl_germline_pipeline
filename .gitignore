@@ -1,6 +1,8 @@
-cromwell*
+cromwell-executions
+cromwell-workflow-logs
+cromwell-mysql/mysql/data
+tools/cromwell-27.jar
 tools/*
 !tools/.gitkeep
 germlinevarcalltest*
 germlinevarcall.wdl.bak
-intervals/groups*

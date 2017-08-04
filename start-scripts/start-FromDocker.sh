@@ -1,7 +1,7 @@
 # Maintainer: Oskar Vidarsson <oskar.vidarsson@uib.no>
 
 #Container ID
-IMAGE_ID="oskarv/wdl:latest"
+IMAGE_ID="oskarv/wdl:gatk4"
 
 #User ID (Choose one of CUST_USERID definition)
 USERID=`id -u`

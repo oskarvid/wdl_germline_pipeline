@@ -4,13 +4,18 @@ MAINTAINER Oskar Vidarsson <oskar.vidarsson@uib.no>
 # Install wget and bwa
 RUN apt-get update && apt-get install -y \
 bwa \
-wget && \
+wget \
+unzip \
+python-minimal && \
 rm -rf /var/lib/apt/lists/* && \
 rm -rf /usr/share/locale/ /usr/share/man/ /root/.cache
 
 # Download picard
 RUN mkdir /Jar && \
-wget https://github.com/broadinstitute/picard/releases/download/2.9.1/picard.jar -O /Jar/picard.jar
+wget https://github.com/broadinstitute/gatk/releases/download/4.beta.3/gatk-4.beta.3.zip -O /Jar/gatk4.zip && \
+unzip -q /Jar/gatk4.zip -d /Jar/ && \
+mv /Jar/gatk*/gatk* /Jar/ && \
+rm -r /Jar/gatk*/ /Jar/gatk4.zip
 
 # Install Java 8
 RUN mkdir /opt/jdk && cd /opt && \
