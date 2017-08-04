@@ -637,13 +637,11 @@ task VariantRecalibratorSNP {
 	  -tranche 99.5 -tranche 99.4 -tranche 99.3 -tranche 99.0 -tranche 98.0 \
 	  -tranche 97.0 -tranche 90.0 \
 	  -tranchesFile ${Output_Vcf_Name}.tranches \
-	  --rscriptFile ${Output_Vcf_Name}.plots.R \
 	  --output ${Output_Vcf_Name}.recal
   }
   output {
 	File recalFile = "${Output_Vcf_Name}.recal"
 	File tranchesFile = "${Output_Vcf_Name}.tranches"
-	File rscriptFile = "${Output_Vcf_Name}.plots.R"
   }
 }
 
@@ -675,13 +673,11 @@ task VariantRecalibratorINDEL {
 	  -tranche 90.0 \
 	  -mG 4 \
 	  -tranchesFile ${Output_Vcf_Name}.tranches \
-	  --rscriptFile ${Output_Vcf_Name}.plots.R \
 	  --output ${Output_Vcf_Name}.recal
   }
   output {
 	File recalFile = "${Output_Vcf_Name}.recal"
 	File tranchesFile = "${Output_Vcf_Name}.tranches"
-	File rscriptFile = "${Output_Vcf_Name}.plots.R"
   }
 }
 

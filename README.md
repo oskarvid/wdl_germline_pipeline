@@ -1,46 +1,34 @@
-#Temporary instructions, disregard the comments below for now.  
-Due to the complexity of setting up the basic file paths etc, I'll only give a very brief introduction, you'll need to either fill in the blanks or just read the code as is.  
+# Germline Variant Calling Pipeline Based On WDL, Cromwell and MySQL
 
-The simplest way of running the pipeline is by using the startFromDocker.sh script, you need to edit it according to where your reference files, input files etc are. Also edit the .json file with the correct file names, the file paths are based on the startFromDocker.sh file, so you should be fine if you just edit the names and point to the correct directories in the startFromDocker.sh file. Also, you need to download GATK4 and GATK3 and have docker installed. Then simply run "sh startFromDocker.sh"  
+There are two ways to run this pipeline, either with the ad hoc method that will let you run it without support for restarting stopped pipelines, reusing previous results or proper process limitation for resource control. Or with all bells and whistles that requires running Cromwell as a server as well as running a MySQL database.  
+The first instructions will describe how to run the basic and simpler version of the pipeline, keep in mind that it's not recommended for production settings (and the moment it's running GATK 4 beta which is only suitable for research or testing purposes).  
 
-To run the pipeline with all bells and whistles, these three basic steps are required.  
+## Setup instructions for the basic pipeline execution mode
+To run the simple version of the pipeline you'll use the start-FromDocker.sh script that is located in the start-scripts folder. You need to edit it according to where your reference files, input files etc are. Also edit the germlinevarcall.json file with the correct file names, if you don't change the docker mount points in the start-FromDocker.sh script, you should be fine if you just edit the file names in the .json file.  
+Finally, you need to download cromwell with the dl-docker.sh script, and obviously you need to have docker installed. When everything it set up, simply run "sh start-FromDocker.sh"  
+
+## Setup instructions for the full pipeline execution mode
+To run the pipeline with all bells and whistles, these three scripts need to be executed in the following order.  
 1. sh start-mysql-server.sh  
 2. sh start-cromwell-server.sh  
 3. sh start-pipeline.sh  
 
-But you also need to edit the IP address in the cromwell application.conf file to the mysql docker IP.  
-And you need to edit the cromwell-server script and point the file paths to where all of your required files are.  
-And there's probably more things you need to edit that I won't cover at this time, just use the startFromDocker.sh script for basic testing.
+If you simply run the start-mysql-server.sh script it will download the required mysql:5.7 docker image automatically. You might want to edit the username and password, the default is set to cromwell_db for both.  
 
-# Cromwell server on MySQL Database
+The second step is setting up the start-cromwell-server.sh script. As long as you run the pipeline from the "wdl_pipeline" directory you only need to edit the REFERENCE, which is the directory where your reference files are located. You also need to run "sudo docker ps -a" and copy the container ID of the MySQL docker container, e.g "3da13d9f19b0", then run "docker inspect 3da13d9f19b0 | grep IPA" and copy the IP address and paste it in the application.conf file that is located at cromwell-mysql/cromwell/config/. Towards the bottom of the file there is an IP address the points to the MySQL database, replace it with your copied IP address.  
+Before you can run the start-cromwell.sh script, you need to run the dl-cromwell.sh script to download cromwell. It will automatically get downloaded to the tools directory, and now you can finally run "sh start-scripts/start-cromwell-server.sh".
 
-Uses docker-compose to link together a Cromwell docker image (built locally with `sbt docker` or available on [dockerhub](https://hub.docker.com/r/broadinstitute/cromwell/)) with a MySQL docker image.
-To change the version of Cromwell used, change the tag in `compose/cromwell/Dockerfile`
+Now that the MySQL and cromwell servers are up and running you can run the start-pipeline.sh script. It will use the fastq files that are in the data directory. Keep in mind that the pipeline will fail when it reaches the VariantRecalibration step since there isn't enough variants.
 
-## Local
+## The finer details
 
-`docker-compose up` from this directory will start a Cromwell server running on a mysql instance with local backend.
-The default configuration file used can be found at `compose/cromwell/app-config/application.conf`
-To override it, simply mount a volume containing your custom `application.conf` to `/app-config` (see `jes-cromwell/docker-compose.yml` for an example)
+The pipeline is compartmentalised into five major blocks. The MySQL server, the Cromwell server, the WDL script, the json file with the reference file- and a few other inputs (not to be confused with the json file with the workflow options, more on that later), and the tsv file which defines the attributes of the fastq files. We've already looked closer at the MySQL- and Cromwell server scripts, so we'll continue with the WDL script.  
+The WDL script contains the pipeline instructions, this is where you go to change how the pipeline is executed.  
+The json file with the file paths to the reference files, interval files, string definitions etc, is where you change the input files and some of the input strings for the WDL script.  
+The template_sample_manifest.tsv file in the intervals directory is where you put the file paths to your fastq files, as well as where you add information about sample names, flowcells, lanes, libraries and platform. This information is needed for correct read group creation for the bam files. BaseRecalibrator and MarkDuplicates benefit from having lane- and library information. If you put your input files in the wdl_pipeline/data directory you don't need to edit the file path, just edit the name from "test_R1.fastq.gz" to whatever your file name is.  
 
-## JES
+There are two more configuration files of interest, namely the workflowoptions.json file and the application.conf files.  
+The workflowoptions.json file is used to set parameters for call caching, and there's a place holder for the final workflow output directory, but it doesn't work as intended at the time of writing this. It can be expanded with more options.  
+The final config file of interest is the application.conf file in the cromwell-mysql/cromwell/config/ directory. This is the file that is used for setting options for cromwell. You can edit the number of concurrently running jobs, i.e affect how many processes are created during scatter gather execution. It is set to 2 by default only for testing purposes, increase the number to something suitable for your server or laptop. Keep in mind that the tools are very RAM hungry, and each process is standalone, so you need to balance the -Xmx java setting in the WDL script with the number of concurrently running jobs.
 
-The `jes-cromwell` directory is an example of how to customize the original compose file with a configuration file and environment variables.
-It uses the application default credentials of the host machine. To use it make sure your gcloud is up to date and that your [application-default credentials](https://developers.google.com/identity/protocols/application-default-credentials) are set up.
-Then run `docker-compose -f docker-compose.yml -f jes-cromwell/docker-compose.yml up` to start a Cromwell server with a JES backend on MySQL.
-
-## MySQL
-
-The data directory in the MySQL container is mounted to `compose/mysql/data`, which allows the data to survive a `docker-compose down`.
-To disable this feature, simply remove the `./compose/mysql/data:/var/lib/mysql` line in the volume section of `docker-compose.yml`.
-Note that in such case, the data will still be preserved by a `docker-compose stop` that stops the container but doesn't delete it.
-
-## Notes
-
-To run Cromwell in the background, add `-d` at the end of the command:
-`docker-compose up -d`
-
-To then see the logs for a specific service, run `docker-compose logs -f <service>`. 
-For example `docker-compose logs -f cromwell`.
-
-For more information about docker compose: [Docker compose doc](https://docs.docker.com/compose/)
+There are way more things that I could elaborate on, but this should be enough for most users. A planned feature is support for the GenomeDB database to take advantage of its speed enhancements. None of the tools are parallelized except for bwa, but the ones that will support it ones GATK 4 goes stable will get it, most likely GenotypeGVCFs, VariantRecalibration and ApplyVQSR.
