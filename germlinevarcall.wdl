@@ -697,7 +697,7 @@ task ApplyRecalibrationSNP {
 	  ApplyVQSR \
 	  -V ${Input_Vcf} \
 	  -R ${ref_fasta} \
-	  -mode INDEL \
+	  -mode ${Mode} \
 	  -ts_filter_level 99.0 \
 	  -tranches_file ${TranchesFile} \
 	  -recal_file ${RecalFile} \
@@ -725,7 +725,7 @@ task ApplyRecalibrationINDEL {
 	  ApplyVQSR \
 	  -V ${Input_Vcf} \
 	  -R ${ref_fasta} \
-	  -mode INDEL \
+	  -mode ${Mode} \
 	  -ts_filter_level 95.0 \
 	  -tranches_file ${TranchesFile} \
 	  -recal_file ${RecalFile} \
