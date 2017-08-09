@@ -1,7 +1,7 @@
 # Germline Variant Calling Pipeline Based On WDL, Cromwell and MySQL
 
 There are two ways to run this pipeline, either with the ad hoc method that will let you run it without support for restarting stopped pipelines, reusing previous results or proper process limitation for resource control. Or with all bells and whistles that requires running Cromwell as a server as well as running a MySQL database.  
-The first instructions will describe how to run the basic and simpler version of the pipeline, keep in mind that it's not recommended for production settings (and the moment it's running GATK 4 beta which is only suitable for research or testing purposes).  
+The first instructions will describe how to run the basic and simpler version of the pipeline, keep in mind that it's not recommended for production settings (at the moment it's running GATK 4 beta which is only suitable for research or testing purposes).  
 
 ## Setup instructions for the basic pipeline execution mode
 To run the simple version of the pipeline you'll use the start-FromDocker.sh script that is located in the start-scripts folder. You need to edit it according to where your reference files, input files etc are. Also edit the germlinevarcall.json file with the correct file names, if you don't change the docker mount points in the start-FromDocker.sh script, you should be fine if you just edit the file names in the .json file.  
