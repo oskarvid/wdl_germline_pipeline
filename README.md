@@ -1,7 +1,7 @@
 # Germline Variant Calling Pipeline Based On WDL, Cromwell and MySQL
 
 There are two ways to run this pipeline, either with the ad hoc method that will let you run it without support for restarting stopped pipelines, reusing previous results or proper process limitation for resource control. Or with all bells and whistles that requires running Cromwell as a server as well as running a MySQL database.  
-The first instructions will describe how to run the basic and simpler version of the pipeline, keep in mind that it's not recommended for production settings (and the moment it's running GATK 4 beta which is only suitable for research or testing purposes).  
+The first instructions will describe how to run the basic and simpler version of the pipeline, keep in mind that it's not recommended for production settings (at the moment it's running GATK 4 beta which is only suitable for research or testing purposes).  
 
 ## Downloading the reference files  
 The default reference files are the hg38 reference files from the Broad Institute, they host them at their public ftp server here: ftp://gsapubftp-anonymous@ftp.broadinstitute.org/bundle  
