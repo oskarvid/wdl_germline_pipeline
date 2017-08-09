@@ -13,7 +13,7 @@ To run the pipeline with all bells and whistles, these three scripts need to be 
 2. sh start-cromwell-server.sh  
 3. sh start-pipeline.sh  
 
-If you simply run the start-mysql-server.sh script it will download the required mysql:5.7 docker image automatically. You might want to edit the username and password, the default is set to cromwell_db for both.  
+If you simply run the start-mysql-server.sh script it will download the required mysql:5.7 docker image automatically. You might want to edit the username and password, the default is set to "cromwell" for both.  
 
 The second step is setting up the start-cromwell-server.sh script. As long as you run the pipeline from the "wdl_pipeline" directory you only need to edit the REFERENCE, which is the directory where your reference files are located. You also need to run "sudo docker ps -a" and copy the container ID of the MySQL docker container, e.g "3da13d9f19b0", then run "docker inspect 3da13d9f19b0 | grep IPA" and copy the IP address and paste it in the application.conf file that is located at cromwell-mysql/cromwell/config/. Towards the bottom of the file there is an IP address the points to the MySQL database, replace it with your copied IP address.  
 Before you can run the start-cromwell.sh script, you need to run the dl-cromwell.sh script to download cromwell. It will automatically get downloaded to the tools directory, and now you can finally run "sh start-scripts/start-cromwell-server.sh".
