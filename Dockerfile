@@ -10,7 +10,7 @@ python-minimal && \
 rm -rf /var/lib/apt/lists/* && \
 rm -rf /usr/share/locale/ /usr/share/man/ /root/.cache
 
-# Download picard
+# Download gatk4
 RUN mkdir /Jar && \
 wget https://github.com/broadinstitute/gatk/releases/download/4.beta.3/gatk-4.beta.3.zip -O /Jar/gatk4.zip && \
 unzip -q /Jar/gatk4.zip -d /Jar/ && \
