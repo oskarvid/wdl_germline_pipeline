@@ -120,7 +120,7 @@ scatter (subgroup in CreateSequenceGroupingTSV.sequence_grouping) {
 		ref_fasta = ref_fasta,
 		ref_fasta_index = ref_fasta_index,
 	}
-  }
+}
 
 # Merge the recalibration reports resulting from by-interval recalibration
 call GatherBqsrReports {
@@ -169,7 +169,7 @@ scatter (subInterval in scatter_interval_list) {
 call GatherVCFs {
   input:
 	  Input_Vcfs = HaplotypeCaller.output_gvcf,
-	  Input_Vcfs_Indexes = HaplotypeCaller.output_gvcf_index,
+#	  Input_Vcfs_Indexes = HaplotypeCaller.output_gvcf_index,
 	  Output_Vcf_Name = final_gvcf_name,
 }
 
@@ -179,7 +179,6 @@ call GenotypeGVCFs {
 	  ref_fasta_index = ref_fasta_index,
 	  ref_dict = ref_dict,
 	  Input_Vcf = GatherVCFs.output_vcfs,
-	  Input_Vcf_Index = HaplotypeCaller.output_gvcf_index,
 	  Output_Name = final_gvcf_name + ".genotypegvcf",
 }
 
@@ -334,10 +333,12 @@ task FastqToSam {
 	  --READ_GROUP_NAME ${ID} \
 	  --LIBRARY_NAME ${LB} \
 	  --PLATFORM ${PL} \
-	  --SORT_ORDER coordinate
-  }
+	  --SORT_ORDER coordinate \
+      --CREATE_MD5_FILE true
+    }
   output {
-	File outputbam = "${Unmapped_Basename}.bam"
+    File outputbam = "${Unmapped_Basename}.bam"
+    File outputbam_md5 = "${Unmapped_Basename}.bam.md5"
   }
 }
 
@@ -399,10 +400,12 @@ task MergeBamAlignment {
 	  --PROGRAM_RECORD_ID "bwamem" \
 	  --PROGRAM_GROUP_VERSION "0.7.12-r1039" \
 	  --PROGRAM_GROUP_COMMAND_LINE "bwa mem -t 18 -R -M Input1 Input2 > output.sam" \
-	  --PROGRAM_GROUP_NAME "bwamem"
-  }
+	  --PROGRAM_GROUP_NAME "bwamem" \
+      --CREATE_MD5_FILE true
+    } 
   output {
-	File output_bam = "${Output_Bam_Basename}.bam"
+    File output_bam = "${Output_Bam_Basename}.bam"
+    File output_md5 = "${Output_Bam_Basename}.bam.md5"
   }
 }
 
@@ -419,10 +422,12 @@ task MarkDup {
 	  --VALIDATION_STRINGENCY LENIENT \
 	  --METRICS_FILE ${Base_Name}.metrics \
 	  --MAX_FILE_HANDLES_FOR_READ_ENDS_MAP 200000 \
-	  --CREATE_INDEX true
-  }
+	  --CREATE_INDEX true \
+      --CREATE_MD5_FILE true
+    }
   output {
-	File MarkDupOutputBam = "${Base_Name}.bam"
+    File MarkDupOutputBam = "${Base_Name}.bam"
+    File MarkDupOutputBam_md5 = "${Base_Name}.bam.md5"
 	File MarkDupOutputBai = "${Base_Name}.bai"
 	File MetricsFile = "${Base_Name}.metrics"
   }
@@ -501,10 +506,12 @@ task ApplyBQSR {
 	  -O ${Output_Bam_Basename}.bam \
 	  --createOutputBamIndex true \
 	  -bqsr ${Recalibration_Report} \
-	  --intervals ${sep=" --intervals " Sequence_Group_Interval}
+	  --intervals ${sep=" --intervals " Sequence_Group_Interval} \
+      --createOutputBamMD5 true
   }
   output {
-	File recalibrated_bam = "${Output_Bam_Basename}.bam"
+    File recalibrated_bam = "${Output_Bam_Basename}.bam"
+    File recalibrated_md5 = "${Output_Bam_Basename}.bam.md5"
 	File recalibrated_bam_index = "${Output_Bam_Basename}.bai"
   }
 }
@@ -520,11 +527,13 @@ task GatherBamFiles {
 	  GatherBamFiles \
 	  --input ${sep=" --input " Input_Bams} \
 	  -O ${Output_Bam_Basename}.bam \
-	  --CREATE_INDEX true
+	  --CREATE_INDEX true \
+      --CREATE_MD5_FILE true
   }
   output {
-	File output_bam = "${Output_Bam_Basename}.bam"
-	File output_bam_index = "${Output_Bam_Basename}.bai"
+    File output_bam = "${Output_Bam_Basename}.bam"
+    File output_bam_index = "${Output_Bam_Basename}.bai"
+    File output_md5 = "${Output_Bam_Basename}.bam.md5"
   }
   runtime {
 	continueOnReturnCode: [0, 1, 2]
@@ -549,18 +558,19 @@ task HaplotypeCaller {
 	  -O ${Gvcf_Basename}.g.vcf \
 	  -I ${Input_Bam} \
 	  -L ${sep=" -L " Sequence_Group_Interval} \
-	  -ERC GVCF
+	  -ERC GVCF \
+      --createOutputBamMD5 true
   }
   output {
 	File output_gvcf = "${Gvcf_Basename}.g.vcf"
-	File output_gvcf_index = "${Gvcf_Basename}.g.vcf.idx"
+#	File output_gvcf_index = "${Gvcf_Basename}.g.vcf.idx"
   }
 }
 
 # Combine multiple VCFs or GVCFs from scattered HaplotypeCaller runs
 task GatherVCFs {
   Array[File] Input_Vcfs
-  Array[File] Input_Vcfs_Indexes
+#  Array[File] Input_Vcfs_Indexes
   String Output_Vcf_Name
 
 # using MergeVcfs instead of GatherVcfs so we can create indices
@@ -571,11 +581,11 @@ task GatherVCFs {
 	  MergeVcfs \
 	  --input ${sep=" --input " Input_Vcfs} \
 	  -O ${Output_Vcf_Name}.g.vcf \
-	  --CREATE_INDEX true
+	  --CREATE_INDEX false
   }
   output {
 	File output_vcfs = "${Output_Vcf_Name}.g.vcf"
-	File output_vcfs_index = "${Output_Vcf_Name}.g.vcf.idx"
+#	File output_vcfs_index = "${Output_Vcf_Name}.g.vcf.idx"
   }
   runtime {
 	continueOnReturnCode: [0, 1, 2, 127]
@@ -584,7 +594,7 @@ task GatherVCFs {
 
 task GenotypeGVCFs {
   Array[File] Input_Vcf
-  Array[File] Input_Vcf_Index
+#  Array[File] Input_Vcf_Index
   File ref_fasta
   File ref_fasta_index
   File ref_dict
@@ -596,10 +606,12 @@ task GenotypeGVCFs {
 	  GenotypeGVCFs \
 	  -R ${ref_fasta} \
 	  -O ${Output_Name}.g.vcf \
-	  -V ${sep=' -V ' Input_Vcf}
+	  -V ${sep=' -V ' Input_Vcf} \
+      --createOutputVariantMD5 true
   }
   output {
-	File output_vcf = "${Output_Name}.g.vcf"
+    File output_vcf = "${Output_Name}.g.vcf"
+    File output_md5 = "${Output_Name}.g.vcf.md5"
 	File output_vcf_index = "${Output_Name}.g.vcf.idx"
   }
 }
@@ -642,6 +654,9 @@ task VariantRecalibratorSNP {
   output {
 	File recalFile = "${Output_Vcf_Name}.recal"
 	File tranchesFile = "${Output_Vcf_Name}.tranches"
+  }
+  runtime {
+	continueOnReturnCode: [2] # VariantRecalibrator for some reason wants R installed even though it's not used, this line allows it to finish despite throwing an error R missing
   }
 }
 
@@ -698,13 +713,15 @@ task ApplyRecalibrationSNP {
 	  -V ${Input_Vcf} \
 	  -R ${ref_fasta} \
 	  -mode ${Mode} \
-	  -ts_filter_level 99.0 \
+	  -ts_filter_level 99.6 \
 	  -tranches_file ${TranchesFile} \
 	  -recal_file ${RecalFile} \
-	  -O ${Output_Vcf_Name}.g.vcf
+	  -O ${Output_Vcf_Name}.g.vcf \
+    --createOutputVariantMD5 true
   }
   output {
-	File output_vcf = "${Output_Vcf_Name}.g.vcf"
+    File output_vcf = "${Output_Vcf_Name}.g.vcf"
+    File output_md5 = "${Output_Vcf_Name}.g.vcf.md5"
 	File output_vcf_index = "${Output_Vcf_Name}.g.vcf.idx"
   }
 }
@@ -729,10 +746,12 @@ task ApplyRecalibrationINDEL {
 	  -ts_filter_level 95.0 \
 	  -tranches_file ${TranchesFile} \
 	  -recal_file ${RecalFile} \
-	  -O ${Output_Vcf_Name}.g.vcf
+	  -O ${Output_Vcf_Name}.g.vcf \
+    --createOutputVariantMD5 true
   }
   output {
-	File output_vcf = "${Output_Vcf_Name}.g.vcf"
+    File output_vcf = "${Output_Vcf_Name}.g.vcf"
+    File output_md5 = "${Output_Vcf_Name}.g.vcf.md5"
 	File output_vcf_index = "${Output_Vcf_Name}.g.vcf.idx"
   }
 }

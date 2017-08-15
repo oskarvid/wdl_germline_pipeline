@@ -9,8 +9,8 @@ There is no password. You can automatically download the hg38 folder with this c
 wget -m ftp://gsapubftp-anonymous@ftp.broadinstitute.org/bundle/hg38  
 
 ## Setup instructions for the basic pipeline execution mode
-To run the simple version of the pipeline you'll use the start-FromDocker.sh script that is located in the start-scripts folder. You need to edit it according to where your reference files, input files etc are. Also edit the germlinevarcall.json file with the correct file names, if you don't change the docker mount points in the start-FromDocker.sh script, you should be fine if you just edit the file names in the .json file.  
-Finally, you need to download cromwell with the dl-docker.sh script, and obviously you need to have docker installed. When everything it set up, simply run "sh start-FromDocker.sh"  
+To run the simple version of the pipeline you'll use the start-FromDocker.sh script that is located in the scripts folder. You need to edit it according to where your reference files, input files etc are. Also edit the germlinevarcall.json file with the correct file names, if you don't change the docker mount points in the start-FromDocker.sh script, you should be fine if you just edit the file names in the .json file.  
+Finally, you need to download cromwell with the scripts/dl-cromwell.sh script, and obviously you need to have docker installed. When everything it set up, simply run "sh start-FromDocker.sh"  
 
 ## Setup instructions for the full pipeline execution mode
 To run the pipeline with all bells and whistles, these three scripts need to be executed in the following order.  
@@ -21,7 +21,7 @@ To run the pipeline with all bells and whistles, these three scripts need to be 
 If you simply run the start-mysql-server.sh script it will download the required mysql:5.7 docker image automatically. You might want to edit the username and password in the cromwell-mysql/mysql/init_user.sql file, the default is set to cromwell for both. If you edit the init_user.sql file, you also need to edit the cromwell-mysql/cromwell/application.conf file and set the correct username and password so cromwell can log in to the MySQL database.  
 
 The second step is setting up the start-cromwell-server.sh script. As long as you run the pipeline from the "wdl_pipeline" directory you only need to edit "REFERENCE", which is the directory where your reference files are located. You also need to run "sudo docker ps -a" and copy the container ID of the MySQL docker container, e.g "3da13d9f19b0", then run "docker inspect 3da13d9f19b0 | grep IPA" and copy the IP address and paste it in the application.conf file that is located at cromwell-mysql/cromwell/config/. Towards the bottom of the file there is an IP address that points to the MySQL database, replace it with your copied IP address.  
-Before you can run the start-cromwell.sh script, you need to run the dl-cromwell.sh script to download cromwell. It will automatically get downloaded to the tools directory, and now you can finally run "sh start-scripts/start-cromwell-server.sh".
+Before you can run the start-cromwell.sh script, you need to run the dl-cromwell.sh script to download cromwell. It will automatically get downloaded to the tools directory, and now you can finally run "sh scripts/start-cromwell-server.sh".
 
 Now that the MySQL and cromwell servers are up and running, you can run the start-pipeline.sh script. It will use the fastq files that are in the data directory. Keep in mind that the pipeline will fail when it reaches the VariantRecalibration step, since they don't have enough variants, complete fastq files obviously work though.
 
