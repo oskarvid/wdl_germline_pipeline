@@ -313,7 +313,7 @@ task FastqToSam {
   String Unmapped_Basename
 
   command {
-	gatk-launch \
+	gatk-launch --javaOptions -Djava.io.tempdir=`pwd`/tmp \
 	  FastqToSam \
 	  --FASTQ ${Input_Fastq1} \
 	  --FASTQ2 ${Input_Fastq2} \
@@ -368,7 +368,7 @@ task MergeBamAlignment {
   String Output_Bam_Basename
 
   command {
-	gatk-launch \
+	gatk-launch --javaOptions -Djava.io.tempdir=`pwd`/tmp \
 	  MergeBamAlignment \
 	  --VALIDATION_STRINGENCY SILENT \
 	  --EXPECTED_ORIENTATIONS FR \
@@ -402,7 +402,7 @@ task MarkDup {
   String Base_Name
 
   command {
-	gatk-launch \
+	gatk-launch --javaOptions -Djava.io.tempdir=`pwd`/tmp \
 	  MarkDuplicates \
 	  --input ${sep=' --input=' Input_File} \
 	  -O ${Base_Name}.bam \
@@ -437,7 +437,7 @@ task BaseRecalibrator {
   File ref_fasta_index
 
   command {
-	gatk-launch \
+	gatk-launch --javaOptions -Djava.io.tempdir=`pwd`/tmp \
 	  BaseRecalibrator \
 	  --reference ${ref_fasta} \
 	  --input ${sep=" --input" Input_Bam} \
@@ -458,7 +458,7 @@ task GatherBqsrReports {
   String Output_Report_Filename
 
   command {
-	gatk-launch \
+	gatk-launch --javaOptions -Djava.io.tempdir=`pwd`/tmp \
 	  GatherBQSRReports \
 	  --input ${sep=" --input " Input_Bqsr_Reports} \
 	  -O ${Output_Report_Filename}
@@ -480,7 +480,7 @@ task ApplyBQSR {
   String Output_Bam_Basename
 
   command {
-	gatk-launch \
+	gatk-launch --javaOptions -Djava.io.tempdir=`pwd`/tmp \
 	  ApplyBQSR \
 	  --reference ${ref_fasta} \
 	  --input ${sep=" --input " Input_Bam} \
@@ -503,7 +503,7 @@ task GatherBamFiles {
   String Output_Bam_Basename
 
   command {
-	gatk-launch \
+	gatk-launch --javaOptions -Djava.io.tempdir=`pwd`/tmp \
 	  GatherBamFiles \
 	  --input ${sep=" --input " Input_Bams} \
 	  -O ${Output_Bam_Basename}.bam \
@@ -531,7 +531,7 @@ task HaplotypeCaller {
   Array[String] Sequence_Group_Interval
 
   command {
-	gatk-launch \
+	gatk-launch --javaOptions -Djava.io.tempdir=`pwd`/tmp \
 	  HaplotypeCaller \
 	  -R ${ref_fasta} \
 	  -O ${Gvcf_Basename}.g.vcf \
@@ -555,7 +555,7 @@ task GatherVCFs {
 # using MergeVcfs instead of GatherVcfs so we can create indices
 # WARNING 2015-10-28 15:01:48 GatherVcfs  Index creation not currently supported when gathering block compressed VCFs.
   command {
-	gatk-launch \
+	gatk-launch --javaOptions -Djava.io.tempdir=`pwd`/tmp \
 	  MergeVcfs \
 	  --input ${sep=" --input " Input_Vcfs} \
 	  -O ${Output_Vcf_Name}.g.vcf \
@@ -579,7 +579,7 @@ task GenotypeGVCFs {
   String Output_Name
 
   command {
-	gatk-launch \
+	gatk-launch --javaOptions -Djava.io.tempdir=`pwd`/tmp \
 	  GenotypeGVCFs \
 	  -R ${ref_fasta} \
 	  -O ${Output_Name}.g.vcf \
@@ -611,7 +611,7 @@ task VariantRecalibratorSNP {
   String Mode
 
   command {
-	gatk-launch \
+	gatk-launch --javaOptions -Djava.io.tempdir=`pwd`/tmp \
 	  VariantRecalibrator \
 	  -R ${ref_fasta} \
 	  -V ${Input_Vcf} \
@@ -648,7 +648,7 @@ task VariantRecalibratorINDEL {
   String Mode
 
   command {
-	gatk-launch \
+	gatk-launch --javaOptions -Djava.io.tempdir=`pwd`/tmp \
 	  VariantRecalibrator \
 	  -R ${ref_fasta} \
 	  -V ${Input_Vcf} \
@@ -682,7 +682,7 @@ task ApplyRecalibrationSNP {
   String Output_Vcf_Name
 
   command {
-	gatk-launch \
+	gatk-launch --javaOptions -Djava.io.tempdir=`pwd`/tmp \
 	  ApplyVQSR \
 	  -V ${Input_Vcf} \
 	  -R ${ref_fasta} \
@@ -712,7 +712,7 @@ task ApplyRecalibrationINDEL {
   String Output_Vcf_Name
 
   command {
-	gatk-launch \
+	gatk-launch --javaOptions -Djava.io.tempdir=`pwd`/tmp \
 	  ApplyVQSR \
 	  -V ${Input_Vcf} \
 	  -R ${ref_fasta} \
