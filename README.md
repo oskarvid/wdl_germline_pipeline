@@ -1,3 +1,4 @@
+# The current official beta version of GATK4 has a bug in VariantRecalibrator that has been fixed in the github release, you need to manually change the gatk jar file until they release an official beta version taht I can easily download with wget in docker.
 # Germline Variant Calling Pipeline Based On WDL, Cromwell and MySQL
 
 There are two ways to run this pipeline, either with the ad hoc method that will let you run it without support for restarting stopped pipelines, reusing previous results or proper process limitation for resource control. Or with all bells and whistles that requires running Cromwell as a server as well as running a MySQL database.  
