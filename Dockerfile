@@ -10,12 +10,16 @@ python-minimal && \
 rm -rf /var/lib/apt/lists/* && \
 rm -rf /usr/share/locale/ /usr/share/man/ /root/.cache
 
-# Download gatk4
+# Download and set up gatk4
 RUN mkdir /Jar && \
 wget https://github.com/broadinstitute/gatk/releases/download/4.beta.3/gatk-4.beta.3.zip -O /Jar/gatk4.zip && \
 unzip -q /Jar/gatk4.zip -d /Jar/ && \
 mv /Jar/gatk*/gatk* /Jar/ && \
-rm -r /Jar/gatk*/ /Jar/gatk4.zip
+rm -r /Jar/gatk*/ /Jar/gatk4.zip && \
+cp /Jar/gatk-launch /usr/local/bin/gatk-launch
+
+# export path for gatk jar
+ENV GATK_LOCAL_JAR=/Jar/gatk-package-4.beta.3-local.jar
 
 # Install Java 8
 RUN mkdir /opt/jdk && cd /opt && \
