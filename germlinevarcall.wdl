@@ -10,7 +10,6 @@ workflow GermlineVarCall {
 # Reference files 
   File ref_fasta_index
   File ref_fasta
-  File fasta_bwt
   File ref_dict
   File ref_amb
   File ref_ann
@@ -65,7 +64,6 @@ scatter (element in FixInputSamplesFile.FixedSamplesFile) {
 
 	call BwaMem {
 	  input:
-		fasta_bwt = fasta_bwt,
 		ref_fasta = ref_fasta,
 		ref_fasta_index = ref_fasta_index,
 		ref_dict = ref_dict,
@@ -336,7 +334,6 @@ task BwaMem {
   File Input_Fastq2
   File ref_fasta
   File ref_fasta_index
-  File fasta_bwt
   File ref_dict
   File ref_amb
   File ref_ann

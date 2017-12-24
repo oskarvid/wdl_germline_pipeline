@@ -1,0 +1,46 @@
+{
+  "GermlineVarCall.known_indels_sites_VCFs": [
+  "/references/1000G_phase3.GRCh38._indels.vcf.gz",
+  "/references/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz"
+  ],
+  "GermlineVarCall.known_indels_sites_indices": [
+  "/references/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz.tbi",
+  "/references/1000G_phase3.GRCh38._indels.vcf.gz.tbi"
+  ],
+  "GermlineVarCall.dbSNP_vcf": "/references/dbsnp_146.hg38.vcf.gz",
+  "GermlineVarCall.dbSNP_vcf_index": "/references/dbsnp_146.hg38.vcf.gz.tbi",
+  "GermlineVarCall.v1000g_vcf": "/references/1000G_phase1.snps.high_confidence.hg38.vcf.gz",
+  "GermlineVarCall.omni_vcf": "/references/1000G_omni2.5.hg38.vcf.gz",
+  "GermlineVarCall.dbsnp_vcf": "/references/dbsnp_146.hg38.vcf.gz",
+  "GermlineVarCall.hapmap_vcf": "/references/hapmap_3.3.hg38.vcf.gz",
+  "GermlineVarCall.mills_vcf": "/references/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz",
+  "GermlineVarCall.v1000g_vcf_index": "/references/1000G_phase1.snps.high_confidence.hg38.vcf.gz.tbi",
+  "GermlineVarCall.omni_vcf_index": "/references/1000G_omni2.5.hg38.vcf.gz.tbi",
+  "GermlineVarCall.dbsnp_vcf_index": "/references/dbsnp_146.hg38.vcf.gz.tbi",
+  "GermlineVarCall.hapmap_vcf_index": "/references/hapmap_3.3.hg38.vcf.gz.tbi",
+  "GermlineVarCall.mills_vcf_index": "/references/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz.tbi",
+  "GermlineVarCall.ref_fasta_index": "/references/Homo_sapiens_assembly38.fasta.fai",
+  "GermlineVarCall.ref_fasta": "/references/Homo_sapiens_assembly38.fasta",
+  "GermlineVarCall.ref_sa": "/references/Homo_sapiens_assembly38.fasta.sa",
+  "GermlineVarCall.ref_bwt": "/references/Homo_sapiens_assembly38.fasta.bwt",
+  "GermlineVarCall.ref_ann": "/references/Homo_sapiens_assembly38.fasta.ann",
+  "GermlineVarCall.ref_amb": "/references/Homo_sapiens_assembly38.fasta.amb",
+  "GermlineVarCall.ref_pac": "/references/Homo_sapiens_assembly38.fasta.pac",
+  "GermlineVarCall.fasta_bwt": "/references/Homo_sapiens_assembly38.fasta.bwt",
+  "GermlineVarCall.ref_dict": "/references/Homo_sapiens_assembly38.dict",
+  "GermlineVarCall.Base_Name": "sample",
+  "GermlineVarCall.final_gvcf_name": "GVCF",
+  "GermlineVarCall.inputSamplesFile": "/wdl_pipeline/intervals/template_sample_manifest_na12878.tsv",
+  "GermlineVarCall.scatter_interval_list": [
+	"/intervals/output_intervals_10/1_of_9/scattered.interval_list",
+	"/intervals/output_intervals_10/2_of_9/scattered.interval_list",
+	"/intervals/output_intervals_10/3_of_9/scattered.interval_list",
+	"/intervals/output_intervals_10/4_of_9/scattered.interval_list",
+	"/intervals/output_intervals_10/5_of_9/scattered.interval_list",
+	"/intervals/output_intervals_10/6_of_9/scattered.interval_list",
+	"/intervals/output_intervals_10/7_of_9/scattered.interval_list",
+	"/intervals/output_intervals_10/8_of_9/scattered.interval_list",
+	"/intervals/output_intervals_10/9_of_9/scattered.interval_list"
+   ]
+}
+
