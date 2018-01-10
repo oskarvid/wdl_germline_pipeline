@@ -1,5 +1,5 @@
 # Data file paths
-REFERENCE="/home/oskar/01-workspace/04-pipelines/GATK-Ghislain/ref_filer"
+REFERENCE="/path/to/hg38"
 
 # Interval list files
 INTERVALS="`pwd`/intervals"
@@ -21,6 +21,6 @@ docker run --rm -t -p 8000:8000 \
 -v=$WORKINGDIR:/wdl_pipeline \
 -v=$TOOLS:/tools \
 -v=$REFERENCE:/references \
-oskarv/wdl:gatk4 \
+oskarv/wdl \
 java -jar -Dconfig.file=/cromwell/application.conf \
-/tools/cromwell-28_2.jar server
+/tools/cromwell-30.1.jar server

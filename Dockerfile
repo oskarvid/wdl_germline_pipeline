@@ -20,11 +20,11 @@ update-alternatives --install /usr/bin/javac javac /opt/jdk/jdk1.8.0_131/bin/jav
 
 # Download and set up gatk4
 RUN mkdir /Jar && \
-wget https://github.com/broadinstitute/gatk/releases/download/4.beta.4/gatk-4.beta.4.zip -O /Jar/gatk4.zip && \
+wget https://github.com/broadinstitute/gatk/releases/download/4.0.0.0/gatk-4.0.0.0.zip -O /Jar/gatk4.zip && \
 unzip -q /Jar/gatk4.zip -d /Jar/ && \
 mv /Jar/gatk*/gatk* /Jar/ && \
 rm -r /Jar/gatk*/ /Jar/gatk4.zip && \
-cp /Jar/gatk-launch /usr/local/bin/gatk-launch
+cp /Jar/gatk /usr/local/bin/gatk
 
 # export path for gatk jar
-ENV GATK_LOCAL_JAR=/Jar/gatk-package-4.beta.4-local.jar
+ENV GATK_LOCAL_JAR=/Jar/gatk-package-4.0.0.0-local.jar

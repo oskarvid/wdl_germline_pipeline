@@ -1,0 +1,13 @@
+{
+	"workflow.scattered_calling_intervals": [
+		"gs://bucket/dir/output_intervals_10_hg38/1_of_9/scattered.interval_list",
+		"gs://bucket/dir/output_intervals_10_hg38/2_of_9/scattered.interval_list",
+		"gs://bucket/dir/output_intervals_10_hg38/3_of_9/scattered.interval_list",
+		"gs://bucket/dir/output_intervals_10_hg38/4_of_9/scattered.interval_list",
+		"gs://bucket/dir/output_intervals_10_hg38/5_of_9/scattered.interval_list",
+		"gs://bucket/dir/output_intervals_10_hg38/6_of_9/scattered.interval_list",
+		"gs://bucket/dir/output_intervals_10_hg38/7_of_9/scattered.interval_list",
+		"gs://bucket/dir/output_intervals_10_hg38/8_of_9/scattered.interval_list",
+		"gs://bucket/dir/output_intervals_10_hg38/9_of_9/scattered.interval_list",
+	]
+}

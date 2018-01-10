@@ -1,187 +1,185 @@
-#!/usr/bin/env python
+# usr/bin/python
 
-import os           # Import the os module for basic path manipulation
-import arvados      # Import the Arvados sdk module
-import re
-import subprocess
+######################################################################################
+# This script creates interval subset lists from a master list for scattering N-ways 
+#                                                                                    
+# Usage:                                                                             
+# python create_scatter_intervals.py \                                               
+#   demo.interval_list 50 4 output_intervals "demo intervals scattered 50-ways"      
+#                                                                                    
+######################################################################################
 
-# the amount to weight each sequence contig
-weight_seq = 120000
+# INPUT REQUIREMENTS
+#
+# The script assumes that the master interval list is formatted according to         
+# Picard conventions as defined below:                                               
+#                                                                                    
+# Picard-style interval files have a SAM-like header that includes a sequence        
+# dictionary. The intervals are given in the form of:                                 
+#                                                                                    
+#   <chr> <start> <stop> + <target_name>                                             
+#                                                                                    
+# with fields separated by tabs, and the coordinates are 1-based (first position     
+# in the genome is position 1, not position 0).                                      
+#                                                                                    
+# Example:                                                                           
+#                                                                                    
+#   @HD     VN:1.0  SO:coordinate
+#   @SQ     SN:1    LN:249250621    AS:GRCh37       [UR:. M5:. SP:.]
+#   @SQ     SN:2    LN:243199373    AS:GRCh37       [UR:. M5:. SP:.]
+#   1       30366   30503   +       target_1
+#   1       69089   70010   +       target_2
+#   1       367657  368599  +       target_3
 
-class InvalidArgumentError(Exception):
-    pass
+# LOGIC
+#
+# The script attempts to partition the intervals in the master list into N subsets 
+# of consecutive intervals (set by "desired_N"), balanced so that the subsets all 
+# add up to roughly the same amount of genomic territory. Based on the desired N and
+# the "wiggle_factor" value, the script defines a maximum length of territory allowed 
+# per subset. It then iterates through all intervals, creating subsets and adding 
+# intervals until the max size is exceeded and a new subset is warranted. 
+# 
+# Note that depending on the master intervals, the wiggle factor may need to be tweaked 
+# in order to achieve exactly N subsets.
 
-class FileAccessError(Exception):
-    pass
+# OUTPUT
+#
+# The script outputs a set of Picard-style interval files in the requested directory
+# as well as a JSON stub file that can be used as base list for a WDL's inputs JSON.
 
-class APIError(Exception):
-    pass
 
-def prepare_gatk_reference_collection(reference_coll):
-    """
-    Checks that the supplied reference_collection has the required 
-    files and only the required files for GATK. 
-    Returns: a portable data hash for the reference collection
-    """
-    # Ensure we have a .fa reference file with corresponding .fai index and .dict
-    # see: http://gatkforums.broadinstitute.org/discussion/1601/how-can-i-prepare-a-fasta-file-to-use-as-reference
-    rcr = arvados.CollectionReader(reference_coll)
-    ref_fasta = {}
-    ref_fai = {}
-    ref_dict = {}
-    ref_input = None
-    dict_reader = None
-    for rs in rcr.all_streams():
-        for rf in rs.all_files():
-            if re.search(r'\.fa$', rf.name()):
-                ref_fasta[rs.name(), rf.name()] = rf
-            elif re.search(r'\.fai$', rf.name()):
-                ref_fai[rs.name(), rf.name()] = rf
-            elif re.search(r'\.dict$', rf.name()):
-                ref_dict[rs.name(), rf.name()] = rf
-    for ((s_name, f_name), fasta_f) in ref_fasta.items():
-        fai_f = ref_fai.get((s_name, re.sub(r'fa$', 'fai', f_name)), 
-                            ref_fai.get((s_name, re.sub(r'fa$', 'fa.fai', f_name)), 
-                                        None))
-        dict_f = ref_dict.get((s_name, re.sub(r'fa$', 'dict', f_name)), 
-                              ref_dict.get((s_name, re.sub(r'fa$', 'fa.dict', f_name)), 
-                                           None))
-        if fasta_f and fai_f and dict_f:
-            # found a set of all three! 
-            ref_input = fasta_f.as_manifest()
-            ref_input += fai_f.as_manifest()
-            ref_input += dict_f.as_manifest()
-            break
-    if ref_input is None:
-        raise InvalidArgumentError("Expected a reference fasta with fai and dict in reference_collection. Found [%s]" % ' '.join(rf.name() for rf in rs.all_files()))
-    # Create and return a portable data hash for the ref_input manifest
-    try:
-        r = arvados.api().collections().create(body={"manifest_text": ref_input}).execute()
-        ref_input_pdh = r["portable_data_hash"]
-    except:
-        raise 
-    return ref_input_pdh
+import os
+import sys
 
-def create_interval_lists(genome_chunks, reference_coll, skip_sq_sn_r):
-    rcr = arvados.CollectionReader(reference_coll)
-    ref_dict = []
-    dict_reader = None
-    for rs in rcr.all_streams():
-        for rf in rs.all_files():
-            if re.search(r'\.dict$', rf.name()):
-                ref_dict.append(rf)
-    if len(ref_dict) < 1:
-        raise InvalidArgumentError("Reference collection does not contain any .dict files but one is required.")
-    if len(ref_dict) > 1:
-        raise InvalidArgumentError("Reference collection contains multiple .dict files but only one is allowed.")
-    dict_reader = ref_dict[0]
+# CLI arguments
+master_list_file = sys.argv[1]
+desired_N = int(sys.argv[2])
+wiggle_factor = int(sys.argv[3])
+dir_name = sys.argv[4]
+comment = "@CO\t"+sys.argv[5]+"\n"
 
-    # Load the dict data
-    interval_header = ""
-    dict_lines = dict_reader.readlines()
-    dict_header = dict_lines.pop(0)
-    if re.search(r'^@HD', dict_header) is None:
-        raise InvalidArgumentError("Dict file in reference collection does not have correct header: [%s]" % dict_header)
-    interval_header += dict_header
-    print "Dict header is %s" % dict_header
-    sn_intervals = dict()
-    sns = []
-    total_len = 0
-    for sq in dict_lines:
-        if re.search(r'^@SQ', sq) is None:
-            raise InvalidArgumentError("Dict file contains malformed SQ line: [%s]" % sq)
-        interval_header += sq
-        sn = None
-        ln = None
-        for tagval in sq.split("\t"):
-            tv = tagval.split(":", 1)
-            if tv[0] == "SN":
-                sn = tv[1]
-            if tv[0] == "LN":
-                ln = tv[1]
-            if sn and ln:
-                break
-        if not (sn and ln):
-            raise InvalidArgumentError("Dict file SQ entry missing required SN and/or LN parameters: [%s]" % sq)
-        assert(sn and ln)
-        if sn_intervals.has_key(sn):
-            raise InvalidArgumentError("Dict file has duplicate SQ entry for SN %s: [%s]" % (sn, sq))
-        if skip_sq_sn_r.search(sn):
-            next
-        sn_intervals[sn] = (1, int(ln))
-        sns.append(sn)
-        total_len += int(ln)
-    total_sequences = len(sns)
+# Read in the master list file contents: 
+with open(master_list_file, "r") as master_list:
+    
+    header_lines = []
+    intervals_list = []
+    longest_interval = 0
 
-    # Chunk the genome into genome_chunks equally sized pieces and create intervals files
-    print "Total sequences included: %s" % (total_sequences)
-    print "Total genome length is %s" % total_len
-    total_points = total_len + (total_sequences * weight_seq)
-    print "Total points to split: %s" % (total_points)
-    chunk_points = int(total_points / genome_chunks)
-    chunks_c = arvados.collection.CollectionWriter(num_retries=3)
-    print "Chunking genome into %s chunks of ~%s points" % (genome_chunks, chunk_points)
-    for chunk_i in range(0, genome_chunks):
-        chunk_num = chunk_i + 1
-        chunk_intervals_count = 0
-        chunk_input_name = dict_reader.name() + (".%s_of_%s.interval_list" % (chunk_num, genome_chunks))
-        print "Creating interval file for chunk %s" % chunk_num
-        chunks_c.start_new_file(newfilename=chunk_input_name)
-        chunks_c.write(interval_header)
-        remaining_points = chunk_points
-        while len(sns) > 0:
-            sn = sns.pop(0)
-            remaining_points -= weight_seq
-            if remaining_points <= 0:
-                sns.insert(0, sn)
-                break
-            if not sn_intervals.has_key(sn):
-                raise ValueError("sn_intervals missing entry for sn [%s]" % sn)
-            start, end = sn_intervals[sn]
-            if (end-start+1) > remaining_points:
-                # not enough space for the whole sq, split it
-                real_end = end
-                end = remaining_points + start - 1
-                assert((end-start+1) <= remaining_points)
-                sn_intervals[sn] = (end+1, real_end)
-                sns.insert(0, sn)
-            interval = "%s\t%s\t%s\t+\t%s\n" % (sn, start, end, "interval_%s_of_%s_%s" % (chunk_num, genome_chunks, sn))
-            remaining_points -= (end-start+1)
-            chunks_c.write(interval)
-            chunk_intervals_count += 1
-            if remaining_points <= 0:
-                break
-        if chunk_intervals_count > 0:
-            print "Chunk intervals file %s saved." % (chunk_input_name)
+    for line in master_list:
+        # store the header lines (starting with @) to serve as output stub
+        if line.startswith("@"):
+            header_lines.append(line)
         else:
-            print "WARNING: skipping empty intervals for %s" % chunk_input_name
-    chunk_input_pdh = chunks_c.finish()
-    print "Chunk intervals collection saved as: %s" % (chunk_input_pdh)
-    return chunk_input_pdh
+            line_split = line.split("\t")
+            length = int(line_split[2])-int(line_split[1])
+            intervals_list.append((line, length))
+            
+            # keep track of what is the longest interval
+            if length > longest_interval:
+                longest_interval = length
 
-def main():
-    current_job = arvados.current_job()
-    skip_sq_sn_regex = '_decoy$'
-    if 'skip_sq_sn_regex' in current_job['script_parameters']:
-        skip_sq_sn_regex = current_job['script_parameters']['skip_sq_sn_regex']
-    skip_sq_sn_r = re.compile(skip_sq_sn_regex)
+print "Number of intervals: "+str(len(intervals_list))
+print "Longest interval was: "+str(longest_interval)
 
-    genome_chunks = int(current_job['script_parameters']['genome_chunks'])
-    if genome_chunks < 1:
-        raise InvalidArgumentError("genome_chunks must be a positive integer")
+# Determine what is the total territory covered by intervals
+total_length = 0
+for interval in intervals_list:
+    total_length = total_length + interval[1]
+    
+print "Total length of covered territory: "+str(total_length)
 
-    # Limit the scope of the reference collection to only those files relevant to gatk
-    ref_input_pdh = prepare_gatk_reference_collection(reference_coll=current_job['script_parameters']['reference_collection'])
+# Determine what should be the theoretical maximum territory per subset 
+# based on the desired N
+max_length_per_subset = total_length / desired_N
 
-    # Create an interval_list file for each chunk based on the .dict in the reference collection
-    output_locator = create_interval_lists(genome_chunks, ref_input_pdh, skip_sq_sn_r)
+print "Theoretical max subset length: "+str(max_length_per_subset)
 
-    # Use the resulting locator as the output for this task.
-    arvados.current_task().set_output(output_locator)
+# Distribute intervals to separate files
 
-    # Done!
+interval_count = 0
+batch_count = 0
+current_batch = []
+current_length = 0
+length_so_far = 0
+batches_list = []
 
+print "Processing..."
 
-if __name__ == '__main__':
-    main()
+def dump_batch(msg):
 
+    global batch_count
+    global current_batch
+    global current_length
+    global length_so_far
+    global interval_count
+    global batches_list
+
+    # increment appropriate counters
+    batch_count +=1
+    length_so_far = length_so_far + current_length
+    # report batch stats
+    print "\t"+str(batch_count)+". \tBatch of "+str(len(current_batch))+"\t| "+str(current_length)+" \t|"+msg+" \t| "+str(interval_count)+" \t| So far "+str(length_so_far)+" \t| Remains "+str(total_length-length_so_far)
+    # store batch
+    batches_list.append(current_batch)
+    # reset everything
+    current_batch = []
+    current_length = 0
+    
+for interval in intervals_list:
+
+    interval_count +=1
+    #print interval_count
+    
+    # Is this new interval above the length limit by itself?
+    if interval[1] > max_length_per_subset:
+        dump_batch("close-out")
+        current_batch.append(interval)
+        current_length = current_length + interval[1] 
+        dump_batch("godzilla")
+        
+    # Is this new interval putting us above the length limit when added to the batch?
+    elif current_length + interval[1] > max_length_per_subset+max_length_per_subset/wiggle_factor:
+        dump_batch("normal")
+        current_batch.append(interval)
+        current_length = current_length + interval[1] 
+
+    else:
+        current_batch.append(interval)
+        current_length = current_length + interval[1] 
+
+dump_batch("finalize")
+
+print "Done.\nGrouped intervals into "+str(len(batches_list))+" batches."
+        
+# Write batches to files and compose a JSON stub
+counter = 0
+json_stub = ["{", "\t\"workflow.scattered_calling_intervals\": ["]
+os.mkdir(dir_name)
+for batch in batches_list:
+    counter +=1
+    path = dir_name+"/"+str(counter)+"_of_"+str(len(batches_list))
+    os.mkdir(path)
+    with open(path+"/scattered.interval_list", "w") as intervals_file:
+        # Write out the header copied from the original
+        for line in header_lines:
+            intervals_file.write("%s" % line)
+        # Add a comment to the header
+        intervals_file.write("%s" % comment)
+        # Write out the intervals
+        for interval in batch:
+            intervals_file.write("%s" % interval[0])    
+    
+    # add the json line             
+    json_stub.append("\t\t\"gs://bucket/dir/"+path+"/scattered.interval_list\",")
+json_stub.append("\t]")
+json_stub.append("}")
+
+print "Wrote "+str(counter)+" interval files to \""+dir_name+"/n_of_N/scattered.interval_list\""            
+
+# Write out the json stub
+with open("scattered_intervals.json", "w") as json_file:
+    for line in json_stub:
+        json_file.write("%s\n" % line)
+
+print "Wrote a JSON stub to \"scattered_intervals.json\""

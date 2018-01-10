@@ -1,12 +1,4 @@
 {
-  "GermlineVarCall.known_indels_sites_VCFs": [
-  "/references/1000G_phase3.GRCh38._indels.vcf.gz",
-  "/references/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz"
-  ],
-  "GermlineVarCall.known_indels_sites_indices": [
-  "/references/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz.tbi",
-  "/references/1000G_phase3.GRCh38._indels.vcf.gz.tbi"
-  ],
   "GermlineVarCall.dbSNP_vcf": "/references/dbsnp_146.hg38.vcf.gz",
   "GermlineVarCall.dbSNP_vcf_index": "/references/dbsnp_146.hg38.vcf.gz.tbi",
   "GermlineVarCall.v1000g_vcf": "/references/1000G_phase1.snps.high_confidence.hg38.vcf.gz",
@@ -30,17 +22,17 @@
   "GermlineVarCall.ref_dict": "/references/Homo_sapiens_assembly38.dict",
   "GermlineVarCall.Base_Name": "sample",
   "GermlineVarCall.final_gvcf_name": "GVCF",
-  "GermlineVarCall.inputSamplesFile": "/wdl_pipeline/intervals/template_sample_manifest_na12878.tsv",
+  "GermlineVarCall.inputSamplesFile": "/wdl_pipeline/intervals/template_sample_manifest.tsv",
   "GermlineVarCall.scatter_interval_list": [
-	"/intervals/output_intervals_10/1_of_9/scattered.interval_list",
-	"/intervals/output_intervals_10/2_of_9/scattered.interval_list",
-	"/intervals/output_intervals_10/3_of_9/scattered.interval_list",
-	"/intervals/output_intervals_10/4_of_9/scattered.interval_list",
-	"/intervals/output_intervals_10/5_of_9/scattered.interval_list",
-	"/intervals/output_intervals_10/6_of_9/scattered.interval_list",
-	"/intervals/output_intervals_10/7_of_9/scattered.interval_list",
-	"/intervals/output_intervals_10/8_of_9/scattered.interval_list",
-	"/intervals/output_intervals_10/9_of_9/scattered.interval_list"
+    "/intervals/output_intervals_10_hg38/1_of_9/scattered.interval_list",
+    "/intervals/output_intervals_10_hg38/2_of_9/scattered.interval_list",
+    "/intervals/output_intervals_10_hg38/3_of_9/scattered.interval_list",
+    "/intervals/output_intervals_10_hg38/4_of_9/scattered.interval_list",
+    "/intervals/output_intervals_10_hg38/5_of_9/scattered.interval_list",
+    "/intervals/output_intervals_10_hg38/6_of_9/scattered.interval_list",
+    "/intervals/output_intervals_10_hg38/7_of_9/scattered.interval_list",
+    "/intervals/output_intervals_10_hg38/8_of_9/scattered.interval_list",
+    "/intervals/output_intervals_10_hg38/9_of_9/scattered.interval_list"
    ]
 }
 
