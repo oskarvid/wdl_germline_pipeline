@@ -1,7 +1,7 @@
 cromwell-executions
 cromwell-workflow-logs
 cromwell-mysql/mysql/data
-tools/cromwell-27.jar
+tools/cromwell-30.1.jar
 tools/*
 !tools/.gitkeep
 germlinevarcalltest*

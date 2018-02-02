@@ -6,7 +6,8 @@ RUN apt-get update && apt-get install -y \
 bwa \
 wget \
 unzip \
-python-minimal && \
+python-minimal \
+samtools && \
 rm -rf /var/lib/apt/lists/* && \
 rm -rf /usr/share/locale/ /usr/share/man/ /root/.cache
 

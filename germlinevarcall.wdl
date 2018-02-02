@@ -345,10 +345,12 @@ task BwaMem {
   command {
 	bwa mem -t 3 \
 	  -R "@RG\tID:${ID}\tSM:${SM}\tLB:${LB}\tPL:${PL}\tPU:NotDefined" \
-	  -M ${ref_fasta} ${Input_Fastq1} ${Input_Fastq2} > ${Base_Name}.sam
+	  -M ${ref_fasta} ${Input_Fastq1} ${Input_Fastq2} \
+	  | samtools view -bS - \
+	  > ${Base_Name}.bam
   }
   output {
-	File outputfile = "${Base_Name}.sam"
+	File outputfile = "${Base_Name}.bam"
   }
 }
 
