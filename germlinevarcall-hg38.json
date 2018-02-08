@@ -24,15 +24,20 @@
   "GermlineVarCall.final_gvcf_name": "GVCF",
   "GermlineVarCall.inputSamplesFile": "/wdl_pipeline/intervals/template_sample_manifest.tsv",
   "GermlineVarCall.scatter_interval_list": [
-    "/intervals/output_intervals_10_hg38/1_of_9/scattered.interval_list",
-    "/intervals/output_intervals_10_hg38/2_of_9/scattered.interval_list",
-    "/intervals/output_intervals_10_hg38/3_of_9/scattered.interval_list",
-    "/intervals/output_intervals_10_hg38/4_of_9/scattered.interval_list",
-    "/intervals/output_intervals_10_hg38/5_of_9/scattered.interval_list",
-    "/intervals/output_intervals_10_hg38/6_of_9/scattered.interval_list",
-    "/intervals/output_intervals_10_hg38/7_of_9/scattered.interval_list",
-    "/intervals/output_intervals_10_hg38/8_of_9/scattered.interval_list",
-    "/intervals/output_intervals_10_hg38/9_of_9/scattered.interval_list"
-   ]
+    "/wdl_pipeline/intervals/output_intervals_15_hg38/1_of_15/scattered.interval_list",
+    "/wdl_pipeline/intervals/output_intervals_15_hg38/2_of_15/scattered.interval_list",
+    "/wdl_pipeline/intervals/output_intervals_15_hg38/3_of_15/scattered.interval_list",
+    "/wdl_pipeline/intervals/output_intervals_15_hg38/4_of_15/scattered.interval_list",
+    "/wdl_pipeline/intervals/output_intervals_15_hg38/5_of_15/scattered.interval_list",
+    "/wdl_pipeline/intervals/output_intervals_15_hg38/6_of_15/scattered.interval_list",
+    "/wdl_pipeline/intervals/output_intervals_15_hg38/7_of_15/scattered.interval_list",
+    "/wdl_pipeline/intervals/output_intervals_15_hg38/8_of_15/scattered.interval_list",
+    "/wdl_pipeline/intervals/output_intervals_15_hg38/9_of_15/scattered.interval_list",
+    "/wdl_pipeline/intervals/output_intervals_15_hg38/10_of_15/scattered.interval_list",
+    "/wdl_pipeline/intervals/output_intervals_15_hg38/11_of_15/scattered.interval_list",
+    "/wdl_pipeline/intervals/output_intervals_15_hg38/12_of_15/scattered.interval_list",
+    "/wdl_pipeline/intervals/output_intervals_15_hg38/13_of_15/scattered.interval_list",
+    "/wdl_pipeline/intervals/output_intervals_15_hg38/14_of_15/scattered.interval_list",
+    "/wdl_pipeline/intervals/output_intervals_15_hg38/15_of_15/scattered.interval_list"
+  ]
 }
-

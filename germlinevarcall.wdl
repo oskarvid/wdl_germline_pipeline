@@ -343,7 +343,7 @@ task BwaMem {
   String Base_Name
   
   command {
-	bwa mem -t 3 \
+	bwa mem -t 16 \
 	  -R "@RG\tID:${ID}\tSM:${SM}\tLB:${LB}\tPL:${PL}\tPU:NotDefined" \
 	  -M ${ref_fasta} ${Input_Fastq1} ${Input_Fastq2} \
 	  | samtools view -bS - \
@@ -610,7 +610,7 @@ task VariantRecalibratorSNP {
 	  VariantRecalibrator \
 	  -R ${ref_fasta} \
 	  -V ${Input_Vcf} \
-	  -mode ${Mode} \
+	  --mode ${Mode} \
 	  --resource v1000G,known=false,training=true,truth=false,prior=10.0:${v1000g_vcf} \
 	  --resource omni,known=false,training=true,truth=true,prior=12.0:${omni_vcf} \
 	  --resource dbsnp,known=true,training=false,truth=false,prior=2.0:${dbsnp_vcf} \
@@ -647,14 +647,14 @@ task VariantRecalibratorINDEL {
 	  VariantRecalibrator \
 	  -R ${ref_fasta} \
 	  -V ${Input_Vcf} \
-	  -mode ${Mode} \
+	  --mode ${Mode} \
 	  --resource mills,known=false,training=true,truth=true,prior=12.0:${mills_vcf} \
 	  --resource dbsnp,known=true,training=false,truth=false,prior=2.0:${dbsnp_vcf} \
 	  -an QD -an DP -an FS -an SOR -an ReadPosRankSum -an MQRankSum -tranche 100.0 \
 	  -tranche 99.95 -tranche 99.9 -tranche 99.5 -tranche 99.0 -tranche 97.0 -tranche 96.0 \
 	  -tranche 95.0 -tranche 94.0 -tranche 93.5 -tranche 93.0 -tranche 92.0 -tranche 91.0 \
 	  -tranche 90.0 \
-	  -mG 4 \
+	  --max-gaussians 4 \
 	  --tranches-file ${Output_Vcf_Name}.tranches \
 	  --output ${Output_Vcf_Name}.recal
   }
@@ -681,12 +681,12 @@ task ApplyRecalibrationSNP {
 	  ApplyVQSR \
 	  -V ${Input_Vcf} \
 	  -R ${ref_fasta} \
-	  -mode ${Mode} \
-	  -ts_filter_level 99.6 \
-	  -tranches_file ${TranchesFile} \
-	  -recal_file ${RecalFile} \
+	  --mode ${Mode} \
+	  -ts-filter-level 99.6 \
+	  -tranches-file ${TranchesFile} \
+	  -recal-file ${RecalFile} \
 	  -O ${Output_Vcf_Name}.g.vcf \
-	  --createOutputVariantMD5 true
+	  --create-output-variant-md5 true
   }
   output {
 	File output_vcf = "${Output_Vcf_Name}.g.vcf"
@@ -711,12 +711,12 @@ task ApplyRecalibrationINDEL {
 	  ApplyVQSR \
 	  -V ${Input_Vcf} \
 	  -R ${ref_fasta} \
-	  -mode ${Mode} \
-	  -ts_filter_level 95.0 \
-	  -tranches_file ${TranchesFile} \
-	  -recal_file ${RecalFile} \
+	  --mode ${Mode} \
+	  -ts-filter-level 95.0 \
+	  -tranches-file ${TranchesFile} \
+	  -recal-file ${RecalFile} \
 	  -O ${Output_Vcf_Name}.g.vcf \
-	  --createOutputVariantMD5 true
+	  --create-output-variant-md5 true
   }
   output {
 	File output_vcf = "${Output_Vcf_Name}.g.vcf"

@@ -1,0 +1,19 @@
+{
+	"workflow.scattered_calling_intervals": [
+		"gs://bucket/dir/output_intervals_15_hg38/1_of_15/scattered.interval_list",
+		"gs://bucket/dir/output_intervals_15_hg38/2_of_15/scattered.interval_list",
+		"gs://bucket/dir/output_intervals_15_hg38/3_of_15/scattered.interval_list",
+		"gs://bucket/dir/output_intervals_15_hg38/4_of_15/scattered.interval_list",
+		"gs://bucket/dir/output_intervals_15_hg38/5_of_15/scattered.interval_list",
+		"gs://bucket/dir/output_intervals_15_hg38/6_of_15/scattered.interval_list",
+		"gs://bucket/dir/output_intervals_15_hg38/7_of_15/scattered.interval_list",
+		"gs://bucket/dir/output_intervals_15_hg38/8_of_15/scattered.interval_list",
+		"gs://bucket/dir/output_intervals_15_hg38/9_of_15/scattered.interval_list",
+		"gs://bucket/dir/output_intervals_15_hg38/10_of_15/scattered.interval_list",
+		"gs://bucket/dir/output_intervals_15_hg38/11_of_15/scattered.interval_list",
+		"gs://bucket/dir/output_intervals_15_hg38/12_of_15/scattered.interval_list",
+		"gs://bucket/dir/output_intervals_15_hg38/13_of_15/scattered.interval_list",
+		"gs://bucket/dir/output_intervals_15_hg38/14_of_15/scattered.interval_list",
+		"gs://bucket/dir/output_intervals_15_hg38/15_of_15/scattered.interval_list",
+	]
+}

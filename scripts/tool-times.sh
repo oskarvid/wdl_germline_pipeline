@@ -5,7 +5,7 @@ START=$(find $D -maxdepth 2 \( -name 'shard*' -o -name 'call*' \) -printf '%Tx a
 echo "$(basename $D | cut -c 6-) started on $START" && \
 STOP=$(find $D -maxdepth 3 -type f \( -name "*.sam" -name "*.bam" -o -name "*.vcf" -o -name "stderr" -o -name "stdout" \) -printf 'And stopped on %Tx at %.9TX \n' | sort | tail -n 1) && \
 echo $STOP && \
-SIZE=$(find $D -maxdepth 4 -type f \( -name "*.recal" -o -name "*.tranches" -o -name '*.*am' -o -name '*.vcf' -o -name '*.grp' \) -exec du -sh {} \; | sort -h | awk {'print $1'}) && \
+SIZE=$(find $D -maxdepth 4 -type f \( -name "*.recal" -o -name "*.tranches" -o -name '*.*am' -o -name '*.vcf' -o -name '*.grp' -o -name '*.gz' \) -exec du -sh {} \; | sort -h | awk {'print $1'}) && \
 echo $SIZE && \
 SHARDS=$(find $D -mindepth 1 -maxdepth 2 -type d -name "shard*" | wc -l) && \
 

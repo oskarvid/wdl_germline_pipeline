@@ -1,6 +1,6 @@
 {
   "default_runtime_attributes": {
-    "final_workflow_outputs_dir": "~/",
+    "final_workflow_outputs_dir": "/media/big-disk/01-workspace/wdl_outputs",
     "write_to_cache": "true",
     "read_from_cache": "false"
   }
