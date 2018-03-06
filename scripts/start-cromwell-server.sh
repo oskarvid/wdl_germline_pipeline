@@ -1,5 +1,5 @@
 # Data file paths
-REFERENCE="/media/big-disk/01-workspace/hg38"
+REFERENCE="/home/oskar/01-workspace/01-data/refdata/hg38"
 
 # Interval list files
 INTERVALS="`pwd`/intervals"
@@ -21,7 +21,6 @@ docker run --rm -t -p 8001:8000 \
 -v=$WORKINGDIR:/wdl_pipeline \
 -v=$TOOLS:/tools \
 -v=$REFERENCE:/references \
--m 60000m \
-oskarv/wdl:samtools \
+oskarv/wdl:latest \
 java -jar -Dconfig.file=/cromwell/application.conf \
 /tools/cromwell-30.1.jar server

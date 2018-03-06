@@ -18,4 +18,5 @@
 # HPO = Type: string. Value: HPO ID, separated by ',' if multiple values														
 # NOTES = Type: string. Value: notable information regarding the file or sample, such as suspected issues etc.														
 SAMPLE	FLOWCELL	LANE	FILE1	FILE2	LIBRARY	PLATFORM
-sample01	H7LJGBBXX	1	/wdl_pipeline/data/CoriellIndex_S1_R1_001.fastq.gz	/wdl_pipeline/data/CoriellIndex_S1_R2_001.fastq.gz	LIB1	ILLUMINA
+sample01	H7LJGBBXX	1	/wdl_pipeline/data/test_R1.fastq.gz	/wdl_pipeline/data/test_R2.fastq.gz	LIB1	ILLUMINA
+sample01	H7LJGBBXX	2	/wdl_pipeline/data/test_R1.fastq.gz	/wdl_pipeline/data/test_R2.fastq.gz	LIB1	ILLUMINA
