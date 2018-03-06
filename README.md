@@ -1,6 +1,6 @@
 # Germline Variant Calling Pipeline Based On WDL, Cromwell and MySQL
 
-### This repository used to be called "wdl_pipeline", but has been renamed to "wdl_germline_pipeline" since I've created more repositories based on wdl 
+### This repository containes the pipeline that was used in the XXX article published in Journal of YYY
 
 There are two ways to run this pipeline, either with the ad hoc method that will let you run it without support for restarting stopped pipelines, reusing previous results or proper process limitation for resource control. Or with all bells and whistles that requires running Cromwell as a server as well as running a MySQL database.  
 The first instructions will describe how to run the basic and simpler version of the pipeline.  
